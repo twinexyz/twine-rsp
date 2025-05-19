@@ -51,6 +51,10 @@ rsp-mpt = { path = "./crates/mpt" }
 rsp-primitives = { path = "./crates/primitives" }
 rsp-provider = { path = "./crates/provider" }
 
+# twine
+twine-l1-consensus-verifier-precompile = { path = "/Users/lilixac/twine/weaver/crates/precompiles/l1-consensus-verifier" }
+twine-l1-transactions-precompile = { path = "/Users/lilixac/twine/weaver/crates/precompiles/l1-transactions" }
+twine-constants = { path = "/Users/lilixac/twine/weaver/crates/constants" }
 
 # sp1
 sp1-build = "4.2.0"

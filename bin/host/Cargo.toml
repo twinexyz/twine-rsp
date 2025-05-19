@@ -20,6 +20,11 @@ rsp-host-executor.workspace = true
 rsp-primitives.workspace = true
 rsp-provider.workspace = true
 
+# twine
+twine-l1-consensus-verifier-precompile.workspace = true
+twine-l1-transactions-precompile.workspace = true
+twine-constants.workspace = true
+
 # alloy
 alloy-chains.workspace = true
 alloy-primitives.workspace = true
@@ -46,3 +51,8 @@ madato = "0.7.0"
 
 [build-dependencies]
 sp1-build.workspace = true
+
+[features]
+default = ["twine"]
+twine = []
+succinct = []

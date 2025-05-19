@@ -21,7 +21,7 @@ use sp1_sdk::{
     CudaProver, EnvProver, Prover, SP1ProofMode, SP1ProofWithPublicValues, SP1ProvingKey, SP1Stdin,
 };
 
-use crate::ExecutionHooks;
+use crate::{twine::TwineEvmFactory, ExecutionHooks};
 
 pub trait ExecutorComponents {
     type Prover: Prover<CpuProverComponents> + MaybeProveWithCycles + 'static;
@@ -129,6 +129,33 @@ where
     type Hooks = H;
 
     fn try_into_chain_spec(genesis: &Genesis) -> eyre::Result<OpChainSpec> {
+        genesis.try_into()
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct TwineExecutorComponents<H, P = EnvProver> {
+    phantom: PhantomData<(H, P)>,
+}
+
+impl<H, P> ExecutorComponents for TwineExecutorComponents<H, P>
+where
+    H: ExecutionHooks,
+    P: Prover<CpuProverComponents> + MaybeProveWithCycles + 'static,
+{
+    type Prover = P;
+
+    type Network = Ethereum;
+
+    type Primitives = EthPrimitives;
+
+    type EvmConfig = EthEvmConfig<TwineEvmFactory>;
+
+    type ChainSpec = ChainSpec;
+
+    type Hooks = H;
+
+    fn try_into_chain_spec(genesis: &Genesis) -> eyre::Result<ChainSpec> {
         genesis.try_into()
     }
 }

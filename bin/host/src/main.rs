@@ -6,8 +6,8 @@ use clap::Parser;
 use execute::PersistExecutionReport;
 use rsp_host_executor::{
     build_executor, create_eth_block_execution_strategy_factory,
-    create_op_block_execution_strategy_factory, BlockExecutor, EthExecutorComponents,
-    OpExecutorComponents,
+    create_op_block_execution_strategy_factory, create_twine_block_execution_strategy_factory,
+    BlockExecutor, EthExecutorComponents, OpExecutorComponents, TwineExecutorComponents,
 };
 use rsp_provider::create_provider;
 use sp1_sdk::{include_elf, EnvProver};
@@ -54,6 +54,27 @@ async fn main() -> eyre::Result<()> {
 
     let prover_client = Arc::new(EnvProver::new());
 
+    #[cfg(feature = "twine")]
+    {
+        let elf = include_elf!("rsp-client").to_vec();
+        let block_execution_strategy_factory =
+            create_twine_block_execution_strategy_factory(&config.genesis);
+        let provider = config.rpc_url.as_ref().map(|url| create_provider(url.clone()));
+
+        let executor = build_executor::<TwineExecutorComponents<_>, _>(
+            elf,
+            provider,
+            block_execution_strategy_factory,
+            prover_client,
+            persist_execution_report,
+            config,
+        )
+        .await?;
+
+        executor.execute(block_number).await?;
+    }
+
+    #[cfg(feature = "succinct")]
     if config.chain.is_optimism() {
         let elf = include_elf!("rsp-client-op").to_vec();
         let block_execution_strategy_factory =
