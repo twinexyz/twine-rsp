@@ -24,10 +24,37 @@ use revm::{
 };
 use revm_primitives::{hardfork::SpecId, Address};
 use std::{collections::HashMap, fmt::Debug, marker::PhantomData};
+use twine_constants::precompiles::{
+    TWINE_CONSENSUS_VERIFIER_PRECOMPILE_ADDRESS, TWINE_TRANSACTION_PRECOMPILE_ADDRESS,
+};
+use twine_l1_consensus_verifier_precompile::ConsensusVerifierPrecompile;
+use twine_l1_transactions_precompile::TransactionPrecompile;
+
+#[derive(Clone, Debug)]
+pub struct TwinePrecompiles {
+    pub transaction_precompile: Address,
+    pub consensus_precompile: Address,
+}
+
+impl TwinePrecompiles {
+    pub fn contains(&self, address: &Address) -> bool {
+        self.consensus_precompile.eq(address) || self.transaction_precompile.eq(address)
+    }
+}
+
+impl Default for TwinePrecompiles {
+    fn default() -> Self {
+        Self {
+            transaction_precompile: TWINE_TRANSACTION_PRECOMPILE_ADDRESS,
+            consensus_precompile: TWINE_CONSENSUS_VERIFIER_PRECOMPILE_ADDRESS,
+        }
+    }
+}
 
 #[derive(Clone)]
 pub struct CustomPrecompiles {
     pub precompiles: EthPrecompiles,
+    pub twine_precompiles: TwinePrecompiles,
     addresses_to_names: HashMap<Address, String>,
 }
 
@@ -43,6 +70,7 @@ impl Default for CustomPrecompiles {
     fn default() -> Self {
         Self {
             precompiles: EthPrecompiles::default(),
+            twine_precompiles: TwinePrecompiles::default(),
             // Addresses from https://www.evm.codes/precompiled
             addresses_to_names: HashMap::from([
                 (u64_to_address(1), "ecrecover".to_string()),
@@ -55,6 +83,11 @@ impl Default for CustomPrecompiles {
                 (u64_to_address(8), "bn-pair".to_string()),
                 (u64_to_address(9), "blake2f".to_string()),
                 (u64_to_address(10), "kzg-point-evaluation".to_string()),
+                (
+                    TWINE_CONSENSUS_VERIFIER_PRECOMPILE_ADDRESS,
+                    "twine-l1-consensus-verifier".to_string(),
+                ),
+                (TWINE_TRANSACTION_PRECOMPILE_ADDRESS, "twine-l1-transaction".to_string()),
             ]),
         }
     }
@@ -81,7 +114,18 @@ impl<CTX: ContextTr> PrecompileProvider<CTX> for CustomPrecompiles {
 
             #[cfg(target_os = "zkvm")]
             println!("cycle-tracker-report-start: precompile-{name}");
-            let result = self.precompiles.run(context, address, inputs, is_static, gas_limit);
+
+            let result;
+            if address.eq(&self.twine_precompiles.transaction_precompile) {
+                result = TransactionPrecompile::run(context, address, inputs, is_static, gas_limit);
+            } else if address.eq(&self.twine_precompiles.consensus_precompile) {
+                result = ConsensusVerifierPrecompile::run(
+                    context, address, inputs, is_static, gas_limit,
+                );
+            } else {
+                result = self.precompiles.run(context, address, inputs, is_static, gas_limit);
+            }
+
             #[cfg(target_os = "zkvm")]
             println!("cycle-tracker-report-end: precompile-{name}");
 
@@ -92,11 +136,14 @@ impl<CTX: ContextTr> PrecompileProvider<CTX> for CustomPrecompiles {
     }
 
     fn warm_addresses(&self) -> Box<impl Iterator<Item = Address>> {
-        self.precompiles.warm_addresses()
+        Box::new(self.precompiles.warm_addresses().chain(vec![
+            TWINE_CONSENSUS_VERIFIER_PRECOMPILE_ADDRESS,
+            TWINE_TRANSACTION_PRECOMPILE_ADDRESS,
+        ]))
     }
 
     fn contains(&self, address: &Address) -> bool {
-        self.precompiles.contains(address)
+        self.precompiles.contains(address) || self.twine_precompiles.contains(address)
     }
 }
 
