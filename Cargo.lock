@@ -2467,7 +2467,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "33d852cb9b869c2a9b3df2f71a3074817f01e1844f839a144f5fcef059a4eb5d"
 dependencies = [
  "libc",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -3567,7 +3567,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc2f4eb4bc735547cfed7c0a4922cbd04a4655978c09b54f1f7b228750664c34"
 dependencies = [
  "cfg-if",
- "windows-targets 0.52.6",
+ "windows-targets 0.48.5",
 ]
 
 [[package]]
@@ -4985,7 +4985,7 @@ dependencies = [
  "once_cell",
  "socket2",
  "tracing",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -6382,7 +6382,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -7822,7 +7822,7 @@ dependencies = [
  "getrandom 0.3.2",
  "once_cell",
  "rustix",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -8343,6 +8343,7 @@ dependencies = [
 [[package]]
 name = "twine-constants"
 version = "0.1.0"
+source = "git+https://github.com/twinexyz/weaver?branch=lilixac%2Fupgrade-reth-version#0dd695dcf8a3fbfa102b1cd49ff40e3c610a347a"
 dependencies = [
  "alloy-primitives",
 ]
@@ -8350,6 +8351,7 @@ dependencies = [
 [[package]]
 name = "twine-evm-contracts"
 version = "0.1.0"
+source = "git+https://github.com/twinexyz/weaver?branch=lilixac%2Fupgrade-reth-version#0dd695dcf8a3fbfa102b1cd49ff40e3c610a347a"
 dependencies = [
  "alloy-contract",
  "alloy-sol-types",
@@ -8358,6 +8360,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-consensus-verifier-precompile"
 version = "0.1.0"
+source = "git+https://github.com/twinexyz/weaver?branch=lilixac%2Fupgrade-reth-version#0dd695dcf8a3fbfa102b1cd49ff40e3c610a347a"
 dependencies = [
  "alloy-primitives",
  "reth-revm",
@@ -8368,6 +8371,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-transactions-precompile"
 version = "0.1.0"
+source = "git+https://github.com/twinexyz/weaver?branch=lilixac%2Fupgrade-reth-version#0dd695dcf8a3fbfa102b1cd49ff40e3c610a347a"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -8385,6 +8389,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-utils"
 version = "0.1.0"
+source = "git+https://github.com/twinexyz/weaver?branch=lilixac%2Fupgrade-reth-version#0dd695dcf8a3fbfa102b1cd49ff40e3c610a347a"
 dependencies = [
  "reth-revm",
  "twine-constants",
