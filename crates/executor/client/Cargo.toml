@@ -21,6 +21,11 @@ itertools = "0.13.0"
 rsp-mpt.workspace = true
 rsp-primitives.workspace = true
 
+# twine
+twine-l1-consensus-verifier-precompile.workspace = true
+twine-l1-transactions-precompile.workspace = true
+twine-constants.workspace = true
+
 # reth
 reth-consensus.workspace = true
 reth-ethereum-consensus.workspace = true
