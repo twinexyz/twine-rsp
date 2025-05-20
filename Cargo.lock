@@ -6139,9 +6139,6 @@ dependencies = [
  "thousands",
  "tokio",
  "tracing-subscriber 0.3.19",
- "twine-constants",
- "twine-l1-consensus-verifier-precompile",
- "twine-l1-transactions-precompile",
  "url",
 ]
 
@@ -6227,9 +6224,6 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber 0.3.19",
- "twine-constants",
- "twine-l1-consensus-verifier-precompile",
- "twine-l1-transactions-precompile",
  "url",
 ]
 

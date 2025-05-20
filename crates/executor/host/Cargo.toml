@@ -27,11 +27,6 @@ rsp-client-executor = { workspace = true, features = ["optimism"] }
 rsp-mpt = { workspace = true, features = ["preimage_context"] }
 rsp-primitives = { workspace = true, features = ["optimism"] }
 
-# twine
-twine-l1-consensus-verifier-precompile.workspace = true
-twine-l1-transactions-precompile.workspace = true
-twine-constants.workspace = true
-
 # sp1
 sp1-sdk.workspace = true
 sp1-prover.workspace = true
