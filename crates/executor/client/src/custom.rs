@@ -108,7 +108,7 @@ impl<CTX: ContextTr> PrecompileProvider<CTX> for CustomPrecompiles {
         is_static: bool,
         gas_limit: u64,
     ) -> Result<Option<Self::Output>, String> {
-        if self.precompiles.contains(address) {
+        if self.precompiles.contains(address) || self.twine_precompiles.contains(address) {
             #[cfg(target_os = "zkvm")]
             let name = self.addresses_to_names.get(address).cloned().unwrap_or(address.to_string());
 

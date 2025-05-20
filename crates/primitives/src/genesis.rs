@@ -3,7 +3,7 @@ use reth_chainspec::{BaseFeeParams, BaseFeeParamsKind, Chain, ChainSpec, Ethereu
 use serde::{Deserialize, Serialize};
 
 pub const LINEA_GENESIS_JSON: &str = include_str!("../../../bin/host/genesis/59144.json");
-pub const TWINE_GENESIS_JSON: &str = include_str!("../../../bin/host/genesis/6767673.json");
+pub const TWINE_GENESIS_JSON: &str = include_str!("../../../bin/host/genesis/14523.json");
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum Genesis {
@@ -30,7 +30,7 @@ impl TryFrom<u64> for Genesis {
             1 => Ok(Genesis::Mainnet),
             10 => Ok(Genesis::OpMainnet),
             59144 => Ok(Genesis::Linea),
-            6767673 => Ok(Genesis::Twine),
+            14523 => Ok(Genesis::Twine),
             11155111 => Ok(Genesis::Sepolia),
             id => Err(eyre!("The chain {id} is not supported")),
         }

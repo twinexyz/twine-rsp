@@ -12,7 +12,6 @@ use rsp_client_executor::custom::CustomEvmFactory;
 use rsp_primitives::genesis::Genesis;
 use sp1_sdk::SP1ProofMode;
 use std::{path::PathBuf, sync::Arc};
-use twine::TwineEvmFactory;
 use url::Url;
 
 #[cfg(feature = "alerting")]
@@ -22,7 +21,7 @@ mod error;
 
 mod executor_components;
 pub use executor_components::{
-    EthExecutorComponents, ExecutorComponents, OpExecutorComponents, TwineExecutorComponents,
+    EthExecutorComponents, ExecutorComponents, OpExecutorComponents,
 };
 
 mod full_executor;
@@ -34,8 +33,6 @@ pub use hooks::ExecutionHooks;
 mod host_executor;
 pub use host_executor::{EthHostExecutor, HostExecutor, OpHostExecutor};
 
-pub mod twine;
-
 pub fn create_eth_block_execution_strategy_factory(
     genesis: &Genesis,
     custom_beneficiary: Option<Address>,
@@ -46,13 +43,6 @@ pub fn create_eth_block_execution_strategy_factory(
         chain_spec,
         CustomEvmFactory::<EthEvmFactory>::new(custom_beneficiary),
     )
-}
-
-pub fn create_twine_block_execution_strategy_factory(
-    genesis: &Genesis,
-) -> EthEvmConfig<TwineEvmFactory> {
-    let chain_spec: Arc<ChainSpec> = Arc::new(genesis.try_into().unwrap());
-    EthEvmConfig::new_with_evm_factory(chain_spec, TwineEvmFactory::new())
 }
 
 pub fn create_op_block_execution_strategy_factory(genesis: &Genesis) -> OpEvmConfig {

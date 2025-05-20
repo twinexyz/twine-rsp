@@ -6,8 +6,8 @@ use clap::Parser;
 use execute::PersistExecutionReport;
 use rsp_host_executor::{
     build_executor, create_eth_block_execution_strategy_factory,
-    create_op_block_execution_strategy_factory, create_twine_block_execution_strategy_factory,
-    BlockExecutor, EthExecutorComponents, OpExecutorComponents, TwineExecutorComponents,
+    create_op_block_execution_strategy_factory, BlockExecutor, EthExecutorComponents,
+    OpExecutorComponents,
 };
 use rsp_provider::create_provider;
 use sp1_sdk::{include_elf, EnvProver};
@@ -58,10 +58,10 @@ async fn main() -> eyre::Result<()> {
     {
         let elf = include_elf!("rsp-client").to_vec();
         let block_execution_strategy_factory =
-            create_twine_block_execution_strategy_factory(&config.genesis);
+            create_eth_block_execution_strategy_factory(&config.genesis, None);
         let provider = config.rpc_url.as_ref().map(|url| create_provider(url.clone()));
 
-        let executor = build_executor::<TwineExecutorComponents<_>, _>(
+        let executor = build_executor::<EthExecutorComponents<_>, _>(
             elf,
             provider,
             block_execution_strategy_factory,
