@@ -8343,7 +8343,7 @@ dependencies = [
 [[package]]
 name = "twine-constants"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver?branch=lilixac%2Fupgrade-reth-version#0dd695dcf8a3fbfa102b1cd49ff40e3c610a347a"
+source = "git+https://github.com/twinexyz/weaver?branch=main#b973239e6d55e9e091a3892b530ba03aecdf33b6"
 dependencies = [
  "alloy-primitives",
 ]
@@ -8351,7 +8351,7 @@ dependencies = [
 [[package]]
 name = "twine-evm-contracts"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver?branch=lilixac%2Fupgrade-reth-version#0dd695dcf8a3fbfa102b1cd49ff40e3c610a347a"
+source = "git+https://github.com/twinexyz/weaver?branch=main#b973239e6d55e9e091a3892b530ba03aecdf33b6"
 dependencies = [
  "alloy-contract",
  "alloy-sol-types",
@@ -8360,7 +8360,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-consensus-verifier-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver?branch=lilixac%2Fupgrade-reth-version#0dd695dcf8a3fbfa102b1cd49ff40e3c610a347a"
+source = "git+https://github.com/twinexyz/weaver?branch=main#b973239e6d55e9e091a3892b530ba03aecdf33b6"
 dependencies = [
  "alloy-primitives",
  "reth-revm",
@@ -8371,7 +8371,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-transactions-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver?branch=lilixac%2Fupgrade-reth-version#0dd695dcf8a3fbfa102b1cd49ff40e3c610a347a"
+source = "git+https://github.com/twinexyz/weaver?branch=main#b973239e6d55e9e091a3892b530ba03aecdf33b6"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -8389,7 +8389,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-utils"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver?branch=lilixac%2Fupgrade-reth-version#0dd695dcf8a3fbfa102b1cd49ff40e3c610a347a"
+source = "git+https://github.com/twinexyz/weaver?branch=main#b973239e6d55e9e091a3892b530ba03aecdf33b6"
 dependencies = [
  "reth-revm",
  "twine-constants",

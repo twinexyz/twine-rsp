@@ -59,9 +59,9 @@ sp1-prover = "4.2.0"
 sp1-sdk = "4.2.0"
 
 # twine
-twine-l1-consensus-verifier-precompile = { git = "https://github.com/twinexyz/weaver", branch = "lilixac/upgrade-reth-version" }
-twine-l1-transactions-precompile = { git = "https://github.com/twinexyz/weaver", branch = "lilixac/upgrade-reth-version" }
-twine-constants = { git = "https://github.com/twinexyz/weaver", branch = "lilixac/upgrade-reth-version" }
+twine-l1-consensus-verifier-precompile = { git = "https://github.com/twinexyz/weaver", branch = "main" }
+twine-l1-transactions-precompile = { git = "https://github.com/twinexyz/weaver", branch = "main"}
+twine-constants = { git = "https://github.com/twinexyz/weaver", branch = "main" }
 
 # reth
 reth-primitives-traits = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false }
