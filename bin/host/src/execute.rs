@@ -203,10 +203,11 @@ impl ExecutionHooks for PersistExecutionReport {
             self.write_header(&mut writer)?;
         }
 
-        self.write_record::<P>(&mut writer, executed_block, execution_report)?;
-
-        writer.flush()?;
-
+        if let Ok(_) = self.write_record::<P>(&mut writer, executed_block, execution_report) {
+            writer.flush()?;
+            return Ok(())
+        }
+        println!("could not write csv report");
         Ok(())
     }
 }
