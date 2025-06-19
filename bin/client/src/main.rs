@@ -12,7 +12,7 @@ pub fn main() {
     // Read the input.
     let input = profile_report!(DESERIALZE_INPUTS, {
         let input = sp1_zkvm::io::read_vec();
-        bincode::deserialize::<EthClientExecutorInput>(&input).unwrap()
+        serde_json::from_slice::<EthClientExecutorInput>(&input).unwrap()
     });
 
     // Execute the block.
