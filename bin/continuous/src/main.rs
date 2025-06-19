@@ -6,7 +6,7 @@ use cli::Args;
 use db::PersistToPostgres;
 use futures_util::StreamExt;
 use rsp_host_executor::{
-    alerting::AlertingClient, create_eth_block_execution_strategy_factory, BlockExecutor, Config,
+    alerting::AlertingClient, create_eth_block_execution_strategy_factory, BlockExecutor,
     EthExecutorComponents, ExecutorComponents, FullExecutor,
 };
 use rsp_provider::create_provider;
@@ -40,7 +40,7 @@ async fn main() -> eyre::Result<()> {
         .init();
 
     let args = Args::parse();
-    let config = Config::mainnet();
+    let config = args.as_config().await?;
 
     let elf = include_elf!("rsp-client").to_vec();
     let block_execution_strategy_factory =
