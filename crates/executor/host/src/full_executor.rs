@@ -72,7 +72,7 @@ pub trait BlockExecutor<C: ExecutorComponents> {
         // Generate the proof.
         // Execute the block inside the zkVM.
         let mut stdin = SP1Stdin::new();
-        let buffer = bincode::serialize(&client_input).unwrap();
+        let buffer = serde_json::to_vec(&client_input).unwrap();
 
         stdin.write_vec(buffer);
 

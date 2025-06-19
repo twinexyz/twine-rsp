@@ -3539,6 +3539,7 @@ dependencies = [
  "bincode",
  "log",
  "rsp-client-executor",
+ "serde_json",
  "sp1-zkvm",
  "tracing",
 ]
