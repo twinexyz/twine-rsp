@@ -4,7 +4,7 @@ use alloy_chains::Chain;
 use alloy_provider::{network::AnyNetwork, Provider, RootProvider};
 use clap::Parser;
 use rsp_host_executor::Config;
-use rsp_primitives::genesis::Genesis;
+use rsp_primitives::genesis::{genesis_from_json, Genesis};
 use sp1_sdk::SP1ProofMode;
 use url::Url;
 
@@ -66,7 +66,8 @@ impl Args {
         let genesis = if let Some(genesis_path) = &self.genesis_path {
             let genesis_json = fs::read_to_string(genesis_path)
                 .map_err(|err| eyre::eyre!("Failed to read genesis file: {err}"))?;
-            let genesis = serde_json::from_str::<alloy_genesis::Genesis>(&genesis_json)?;
+
+            let genesis = genesis_from_json(&genesis_json).unwrap();
 
             Genesis::Custom(genesis.config)
         } else {
