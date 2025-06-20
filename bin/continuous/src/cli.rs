@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{fs, path::PathBuf};
 
 use alloy_chains::Chain;
 use alloy_provider::{network::AnyNetwork, Provider, RootProvider};
@@ -64,11 +64,10 @@ impl Args {
         };
 
         let genesis = if let Some(genesis_path) = &self.genesis_path {
-            // let genesis_json = fs::read_to_string(genesis_path)
-            //     .map_err(|err| eyre::eyre!("Failed to read genesis file: {err}"))?;
-            // let genesis = serde_json::from_str::<alloy_genesis::Genesis>(&genesis_json)?;
+            let genesis_json = fs::read_to_string(genesis_path)
+                .map_err(|err| eyre::eyre!("Failed to read genesis file: {err}"))?;
 
-            let genesis = genesis_from_json(genesis_path.to_str().unwrap()).unwrap();
+            let genesis = genesis_from_json(&genesis_json).unwrap();
 
             Genesis::Custom(genesis.config)
         } else {
