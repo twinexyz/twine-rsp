@@ -98,6 +98,8 @@ pub trait BlockExecutor<C: ExecutorComponents> {
             // Read the block header.
             let headers = public_values.read::<Vec<CommittedHeader>>();
 
+            println!("succesfully made headers {:?}", headers);
+
             for (i, header) in headers.iter().enumerate() {
                 let executed_block_hash = header.header.hash_slow();
                 let input_block_hash = client_input[i].current_block.header.hash_slow();
