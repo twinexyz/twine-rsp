@@ -39,6 +39,9 @@ pub fn main() {
             header,
         }
     }).collect(); 
+
+    let committing_slice = serde_json::to_vec(&committed_headers).expect("could not serialize");
+
     // Commit the block header.
-    sp1_zkvm::io::commit::<Vec<CommittedHeader>>(&committed_headers.into());
+    sp1_zkvm::io::commit_slice(&committing_slice);
 }
