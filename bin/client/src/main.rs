@@ -25,6 +25,7 @@ pub fn main() {
             Arc::new((&input.genesis).try_into().unwrap()),
             input.custom_beneficiary,
         );
+        println!("inside the for block");
         let header = executor.execute(input).expect("failed to execute client");
         headers.push(header);
     }
