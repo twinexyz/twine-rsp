@@ -11,7 +11,7 @@ use alloy_provider::Provider;
 use either::Either;
 use eyre::bail;
 use reth_primitives_traits::NodePrimitives;
-use rsp_client_executor::io::{ClientExecutorInput, CommittedHeader};
+use rsp_client_executor::{io::{ClientExecutorInput, CommittedHeader}, PublicCommitment};
 use rsp_rpc_db::RpcDb;
 use serde::de::DeserializeOwned;
 use sp1_prover::components::CpuProverComponents;
@@ -91,33 +91,36 @@ pub trait BlockExecutor<C: ExecutorComponents> {
 
             println!("reached in the execute result");
 
-            let (public_values, execution_report) = execute_result?;
+            let (public_values, _) = execute_result?;
 
             println!("errored from the public value deserialize?");
 
+            let public_commitment = PublicCommitment::abi_decode_packed(public_values.as_slice().to_vec());
+
+            println!("Public Commitment {:#?}", public_commitment);
             // Read the block header.
-            let headers: Vec<CommittedHeader> =
-                serde_json::from_slice(public_values.as_slice()).expect("could not deserialize");
+            // let headers: Vec<CommittedHeader> =
+            //     serde_json::from_slice(public_values.as_slice()).expect("could not deserialize");
 
-            println!("succesfully made headers {:?}", headers);
+            // println!("succesfully made headers {:?}", headers);
 
-            for (i, header) in headers.iter().enumerate() {
-                let executed_block_hash = header.header.hash_slow();
-                let input_block_hash = client_input[i].current_block.header.hash_slow();
+            // for (i, header) in headers.iter().enumerate() {
+            //     let executed_block_hash = header.header.hash_slow();
+            //     let input_block_hash = client_input[i].current_block.header.hash_slow();
 
-                if input_block_hash != executed_block_hash {
-                    return Err(HostError::HeaderMismatch(executed_block_hash, input_block_hash))?;
-                }
+            //     if input_block_hash != executed_block_hash {
+            //         return Err(HostError::HeaderMismatch(executed_block_hash, input_block_hash))?;
+            //     }
 
-                info!(?executed_block_hash, "Execution successful");
+            //     info!(?executed_block_hash, "Execution successful");
 
-                hooks
-                    .on_execution_end::<C::Primitives>(
-                        &client_input[i].current_block,
-                        &execution_report,
-                    )
-                    .await?;
-            }
+            //     hooks
+            //         .on_execution_end::<C::Primitives>(
+            //             &client_input[i].current_block,
+            //             &execution_report,
+            //         )
+            //         .await?;
+            // }
         }
 
         if let Some(prove_mode) = self.config().prove_mode {
