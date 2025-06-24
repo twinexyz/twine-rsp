@@ -70,7 +70,7 @@ async fn main() -> eyre::Result<()> {
         )
         .await?;
 
-        executor.execute(block_number).await?;
+        executor.execute(block_number, args.to_block.unwrap_or(block_number)).await?;
     } else {
         let elf = include_elf!("rsp-client").to_vec();
         let block_execution_strategy_factory =
@@ -87,7 +87,7 @@ async fn main() -> eyre::Result<()> {
         )
         .await?;
 
-        executor.execute(block_number).await?;
+        executor.execute(block_number, args.to_block.unwrap_or(block_number)).await?;
     }
 
     Ok(())
