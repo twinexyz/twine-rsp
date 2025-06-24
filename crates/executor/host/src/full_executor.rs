@@ -93,6 +93,8 @@ pub trait BlockExecutor<C: ExecutorComponents> {
 
             let (mut public_values, execution_report) = execute_result?;
 
+            println!("errored from the public value deserialize?");
+
             // Read the block header.
             let headers = public_values.read::<Vec<CommittedHeader>>();
 
