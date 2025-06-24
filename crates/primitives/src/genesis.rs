@@ -303,20 +303,20 @@ pub(crate) mod serde_bincode_compat {
     }
 }
 
-#[cfg(test)]
-mod tests {
+// #[cfg(test)]
+// mod tests {
 
-    use crate::genesis::{genesis_from_json, Genesis, OP_SEPOLIA_GENESIS_JSON};
+//     use crate::genesis::{genesis_from_json, Genesis, OP_SEPOLIA_GENESIS_JSON};
 
-    #[test]
-    fn test_custom_genesis_bincode_roundtrip() {
-        let path = include_str!("/Users/swopnilparajuli/workspace/work/twine-rsp/genesis_twine.json");
-        let alloy_genesis = genesis_from_json(path).unwrap();
-        let genesis = Genesis::Custom(alloy_genesis.config);
-        let buf = serde_json::to_vec(&genesis).unwrap();
-        let deserialized = serde_json::from_slice::<Genesis>(&buf).unwrap();
+//     #[test]
+//     fn test_custom_genesis_bincode_roundtrip() {
+//         let path =
+// include_str!("/Users/swopnilparajuli/workspace/work/twine-rsp/genesis_twine.json");         let
+// alloy_genesis = genesis_from_json(path).unwrap();         let genesis =
+// Genesis::Custom(alloy_genesis.config);         let buf = serde_json::to_vec(&genesis).unwrap();
+//         let deserialized = serde_json::from_slice::<Genesis>(&buf).unwrap();
 
-        println!("deserialized {:?}", deserialized);
-        // assert_eq!(genesis, deserialized);
-    }
-}
+//         println!("deserialized {:?}", deserialized);
+//         // assert_eq!(genesis, deserialized);
+//     }
+// }

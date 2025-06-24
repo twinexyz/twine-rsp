@@ -10,6 +10,9 @@ serde_json = "1.0.94"
 
 # workspace
 rsp-client-executor = { path = "../../crates/executor/client" }
+revm-primitives = { version = "18.0.0", features = [
+    "serde",
+], default-features = false }
 
 # sp1
 sp1-zkvm = "5.0.0"

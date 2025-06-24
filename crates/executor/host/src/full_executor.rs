@@ -96,7 +96,8 @@ pub trait BlockExecutor<C: ExecutorComponents> {
             println!("errored from the public value deserialize?");
 
             // Read the block header.
-            let headers: Vec<CommittedHeader> = serde_json::from_slice(public_values.as_slice()).expect("could not deserialize");
+            let headers: Vec<CommittedHeader> =
+                serde_json::from_slice(public_values.as_slice()).expect("could not deserialize");
 
             println!("succesfully made headers {:?}", headers);
 
@@ -111,19 +112,20 @@ pub trait BlockExecutor<C: ExecutorComponents> {
                 info!(?executed_block_hash, "Execution successful");
 
                 hooks
-                .on_execution_end::<C::Primitives>(&client_input[i].current_block, &execution_report)
-                .await?;
+                    .on_execution_end::<C::Primitives>(
+                        &client_input[i].current_block,
+                        &execution_report,
+                    )
+                    .await?;
             }
-
-           
         }
 
         if let Some(prove_mode) = self.config().prove_mode {
             info!("Starting proof generation");
 
             let proving_start = Instant::now();
-            for block_number in client_input.clone().first().unwrap().current_block.number
-                ..=client_input.last().unwrap().current_block.number
+            for block_number in client_input.clone().first().unwrap().current_block.number..=
+                client_input.last().unwrap().current_block.number
             {
                 hooks.on_proving_start(block_number).await?;
             }
@@ -149,8 +151,8 @@ pub trait BlockExecutor<C: ExecutorComponents> {
                 client_input.last().unwrap().current_block.number,
             );
 
-            for block_number in client_input.first().unwrap().current_block.number
-                ..=client_input.last().unwrap().current_block.number
+            for block_number in client_input.first().unwrap().current_block.number..=
+                client_input.last().unwrap().current_block.number
             {
                 hooks
                     .on_proving_end(
