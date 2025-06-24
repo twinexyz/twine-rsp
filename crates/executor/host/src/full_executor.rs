@@ -1,5 +1,10 @@
 use std::{
-    fmt::{Debug, Formatter}, fs::{self, File}, io::Write, path::{Path, PathBuf}, sync::Arc, time::{Duration, Instant}
+    fmt::{Debug, Formatter},
+    fs::{self, File},
+    io::Write,
+    path::{Path, PathBuf},
+    sync::Arc,
+    time::{Duration, Instant},
 };
 
 use alloy_provider::Provider;
@@ -74,30 +79,26 @@ pub trait BlockExecutor<C: ExecutorComponents> {
 
         stdin.write_vec(buffer);
 
-        println!("after serialization"); 
+        println!("after serialization");
         let stdin = Arc::new(stdin);
 
         if self.config().skip_client_execution {
             info!("Client execution skipped");
         } else {
             // Only execute the program.
-            for input in client_input.clone() {
-                let execute_result = execute_client(
-                    input.current_block.number,
-                    self.client(),
-                    self.pk(),
-                    stdin.clone(),
-                )
-                .await?;
 
-                println!("reached in the execute result");
-                
-                let (mut public_values, execution_report) = execute_result?;
+            let execute_result = execute_client(0, self.client(), self.pk(), stdin.clone()).await?;
 
-                // Read the block header.
-                let header = public_values.read::<CommittedHeader>().header;
-                let executed_block_hash = header.hash_slow();
-                let input_block_hash = input.current_block.header.hash_slow();
+            println!("reached in the execute result");
+
+            let (mut public_values, execution_report) = execute_result?;
+
+            // Read the block header.
+            let headers = public_values.read::<Vec<CommittedHeader>>();
+
+            for (i, header) in headers.iter().enumerate() {
+                let executed_block_hash = header.header.hash_slow();
+                let input_block_hash = client_input[i].current_block.header.hash_slow();
 
                 if input_block_hash != executed_block_hash {
                     return Err(HostError::HeaderMismatch(executed_block_hash, input_block_hash))?;
@@ -106,9 +107,11 @@ pub trait BlockExecutor<C: ExecutorComponents> {
                 info!(?executed_block_hash, "Execution successful");
 
                 hooks
-                    .on_execution_end::<C::Primitives>(&input.current_block, &execution_report)
-                    .await?;
+                .on_execution_end::<C::Primitives>(&client_input[i].current_block, &execution_report)
+                .await?;
             }
+
+           
         }
 
         if let Some(prove_mode) = self.config().prove_mode {
@@ -136,7 +139,11 @@ pub trait BlockExecutor<C: ExecutorComponents> {
             let proof_bytes = bincode::serialize(&proof.proof).unwrap();
             let proof = serde_json::to_string(&proof).expect("could not serialize proof to string");
 
-            save_proof_to_file(proof, client_input.first().unwrap().current_block.number, client_input.last().unwrap().current_block.number);
+            save_proof_to_file(
+                proof,
+                client_input.first().unwrap().current_block.number,
+                client_input.last().unwrap().current_block.number,
+            );
 
             for block_number in client_input.first().unwrap().current_block.number
                 ..=client_input.last().unwrap().current_block.number
