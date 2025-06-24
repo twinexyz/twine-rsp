@@ -10,6 +10,8 @@ use std::sync::Arc;
 
 pub fn main() {
     // Read the input.
+
+    println!("is this actually called after that??");
     let inputs = profile_report!(DESERIALZE_INPUTS, {
         let input = sp1_zkvm::io::read_vec();
         serde_json::from_slice::<Vec<EthClientExecutorInput>>(&input).unwrap()
