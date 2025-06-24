@@ -89,6 +89,9 @@ pub trait BlockExecutor<C: ExecutorComponents> {
                     stdin.clone(),
                 )
                 .await?;
+
+                println!("reached in the execute result");
+                
                 let (mut public_values, execution_report) = execute_result?;
 
                 // Read the block header.
