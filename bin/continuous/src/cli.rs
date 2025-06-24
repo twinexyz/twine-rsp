@@ -18,13 +18,11 @@ pub struct Args {
     #[clap(long, env)]
     pub chain_id: Option<u64>,
 
-
     #[clap(long, env)]
     pub genesis_path: Option<PathBuf>,
 
     #[clap(long, env)]
-    pub prove: bool, 
-    
+    pub prove: bool,
 
     /// The WS rpc url used to fetch data about the block.
     #[clap(long, env)]
@@ -48,7 +46,7 @@ pub struct Args {
 }
 
 impl Args {
-     pub async fn as_config(&self) -> eyre::Result<Config> {
+    pub async fn as_config(&self) -> eyre::Result<Config> {
         // We don't need RPC when using cache with known chain ID, so we leave it as `Option<Url>`
         // here and decide on whether to panic later.
         //
