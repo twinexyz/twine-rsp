@@ -68,11 +68,13 @@ pub trait BlockExecutor<C: ExecutorComponents> {
     ) -> eyre::Result<()> {
         // Generate the proof.
         // Execute the block inside the zkVM.
+        println!("in process client");
         let mut stdin = SP1Stdin::new();
         let buffer = serde_json::to_vec(&client_input).unwrap();
 
         stdin.write_vec(buffer);
 
+        println!("after serialization"); 
         let stdin = Arc::new(stdin);
 
         if self.config().skip_client_execution {
@@ -333,6 +335,8 @@ where
             };
             client_inputs.push(client_input);
         }
+
+        println!("before process client");
 
         self.process_client(client_inputs, &self.hooks).await?;
 
