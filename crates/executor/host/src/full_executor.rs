@@ -1,8 +1,5 @@
 use std::{
-    fmt::{Debug, Formatter},
-    path::{Path, PathBuf},
-    sync::Arc,
-    time::{Duration, Instant},
+    fmt::{Debug, Formatter}, fs::{self, File}, io::Write, path::{Path, PathBuf}, sync::Arc, time::{Duration, Instant}
 };
 
 use alloy_provider::Provider;
@@ -132,6 +129,9 @@ pub trait BlockExecutor<C: ExecutorComponents> {
 
             let proving_duration = proving_start.elapsed();
             let proof_bytes = bincode::serialize(&proof.proof).unwrap();
+            let proof = serde_json::to_string(&proof).expect("could not serialize proof to string");
+
+            save_proof_to_file(proof, client_input.first().unwrap().current_block.number, client_input.last().unwrap().current_block.number);
 
             for block_number in client_input.first().unwrap().current_block.number
                 ..=client_input.last().unwrap().current_block.number
@@ -152,6 +152,19 @@ pub trait BlockExecutor<C: ExecutorComponents> {
 
         Ok(())
     }
+}
+
+fn save_proof_to_file(proof_json: String, start_block: u64, end_block: u64) {
+    let proof_dir = "proofs";
+    if let Ok(exists) = fs::exists(proof_dir) {
+        if !exists {
+            fs::create_dir(proof_dir).unwrap();
+        }
+    }
+
+    let file_name = format!("{}/execution_proof_{}_{}.proof", proof_dir, start_block, end_block);
+    let mut proof_file = File::create(&file_name).expect("file creation error");
+    proof_file.write_all(proof_json.as_bytes()).expect("error writing proof to the file");
 }
 
 impl<C, P> BlockExecutor<C> for EitherExecutor<C, P>
