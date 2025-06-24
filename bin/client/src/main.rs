@@ -43,5 +43,7 @@ pub fn main() {
     let committing_slice = serde_json::to_vec(&committed_headers).expect("could not serialize");
 
     // Commit the block header.
+    println!("commiting the slice");
     sp1_zkvm::io::commit_slice(&committing_slice);
+    println!("commiting completed. ");
 }
