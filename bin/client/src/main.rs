@@ -17,6 +17,8 @@ pub fn main() {
         serde_json::from_slice::<Vec<EthClientExecutorInput>>(&input).unwrap()
     });
 
+    println!("deserialization issue???");
+
     let mut headers = vec![];
 
     // Execute the block.
