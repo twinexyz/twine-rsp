@@ -32,6 +32,8 @@ pub fn main() {
         headers.push(header);
     }
 
+    println!("outside the for block ");
+
     let committed_headers: Vec<CommittedHeader> = headers.into_iter().map(|header| {
         CommittedHeader {
             header,
