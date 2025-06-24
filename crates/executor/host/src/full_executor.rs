@@ -53,7 +53,7 @@ where
 
 pub trait BlockExecutor<C: ExecutorComponents> {
     #[allow(async_fn_in_trait)]
-    async fn execute(&self, block_number: u64) -> eyre::Result<()>;
+    async fn execute(&self, block_number: u64, to_block: u64) -> eyre::Result<()>;
 
     fn client(&self) -> Arc<C::Prover>;
 
@@ -66,7 +66,7 @@ pub trait BlockExecutor<C: ExecutorComponents> {
     #[allow(async_fn_in_trait)]
     async fn process_client(
         &self,
-        client_input: ClientExecutorInput<C::Primitives>,
+        client_input: Vec<ClientExecutorInput<C::Primitives>>,
         hooks: &C::Hooks,
     ) -> eyre::Result<()> {
         // Generate the proof.
@@ -82,36 +82,43 @@ pub trait BlockExecutor<C: ExecutorComponents> {
             info!("Client execution skipped");
         } else {
             // Only execute the program.
-            let execute_result = execute_client(
-                client_input.current_block.number,
-                self.client(),
-                self.pk(),
-                stdin.clone(),
-            )
-            .await?;
-            let (mut public_values, execution_report) = execute_result?;
-
-            // Read the block header.
-            let header = public_values.read::<CommittedHeader>().header;
-            let executed_block_hash = header.hash_slow();
-            let input_block_hash = client_input.current_block.header.hash_slow();
-
-            if input_block_hash != executed_block_hash {
-                return Err(HostError::HeaderMismatch(executed_block_hash, input_block_hash))?
-            }
-
-            info!(?executed_block_hash, "Execution successful");
-
-            hooks
-                .on_execution_end::<C::Primitives>(&client_input.current_block, &execution_report)
+            for input in client_input.clone() {
+                let execute_result = execute_client(
+                    input.current_block.number,
+                    self.client(),
+                    self.pk(),
+                    stdin.clone(),
+                )
                 .await?;
+                let (mut public_values, execution_report) = execute_result?;
+
+                // Read the block header.
+                let header = public_values.read::<CommittedHeader>().header;
+                let executed_block_hash = header.hash_slow();
+                let input_block_hash = input.current_block.header.hash_slow();
+
+                if input_block_hash != executed_block_hash {
+                    return Err(HostError::HeaderMismatch(executed_block_hash, input_block_hash))?;
+                }
+
+                info!(?executed_block_hash, "Execution successful");
+
+                hooks
+                    .on_execution_end::<C::Primitives>(&input.current_block, &execution_report)
+                    .await?;
+            }
         }
 
         if let Some(prove_mode) = self.config().prove_mode {
             info!("Starting proof generation");
 
             let proving_start = Instant::now();
-            hooks.on_proving_start(client_input.current_block.number).await?;
+            for block_number in client_input.clone().first().unwrap().current_block.number
+                ..=client_input.last().unwrap().current_block.number
+            {
+                hooks.on_proving_start(block_number).await?;
+            }
+
             let client = self.client();
             let pk = self.pk();
 
@@ -126,15 +133,19 @@ pub trait BlockExecutor<C: ExecutorComponents> {
             let proving_duration = proving_start.elapsed();
             let proof_bytes = bincode::serialize(&proof.proof).unwrap();
 
-            hooks
-                .on_proving_end(
-                    client_input.current_block.number,
-                    &proof_bytes,
-                    self.vk().as_ref(),
-                    cycle_count,
-                    proving_duration,
-                )
-                .await?;
+            for block_number in client_input.first().unwrap().current_block.number
+                ..=client_input.last().unwrap().current_block.number
+            {
+                hooks
+                    .on_proving_end(
+                        block_number,
+                        &proof_bytes,
+                        self.vk().as_ref(),
+                        cycle_count,
+                        proving_duration,
+                    )
+                    .await?;
+            }
 
             info!("Proof successfully generated!");
         }
@@ -148,10 +159,10 @@ where
     C: ExecutorComponents,
     P: Provider<C::Network> + Clone,
 {
-    async fn execute(&self, block_number: u64) -> eyre::Result<()> {
+    async fn execute(&self, block_number: u64, to_block: u64) -> eyre::Result<()> {
         match self {
-            Either::Left(ref executor) => executor.execute(block_number).await,
-            Either::Right(ref executor) => executor.execute(block_number).await,
+            Either::Left(ref executor) => executor.execute(block_number, to_block).await,
+            Either::Right(ref executor) => executor.execute(block_number, to_block).await,
         }
     }
 
@@ -249,62 +260,68 @@ where
     C: ExecutorComponents,
     P: Provider<C::Network> + Clone,
 {
-    async fn execute(&self, block_number: u64) -> eyre::Result<()> {
-        self.hooks.on_execution_start(block_number).await?;
+    async fn execute(&self, start_block: u64, to_block: u64) -> eyre::Result<()> {
+        let mut client_inputs = vec![];
+        for block_number in start_block..=to_block {
+            self.hooks.on_execution_start(block_number).await?;
 
-        let client_input_from_cache = self.config.cache_dir.as_ref().and_then(|cache_dir| {
-            match try_load_input_from_cache::<C::Primitives>(
-                cache_dir,
-                self.config.chain.id(),
-                block_number,
-            ) {
-                Ok(client_input) => client_input,
-                Err(e) => {
-                    warn!("Failed to load input from cache: {}", e);
-                    None
-                }
-            }
-        });
-
-        let client_input = match client_input_from_cache {
-            Some(mut client_input_from_cache) => {
-                // Override opcode tracking from cache by the setting provided by the user
-                client_input_from_cache.opcode_tracking = self.config.opcode_tracking;
-                client_input_from_cache
-            }
-            None => {
-                let rpc_db = RpcDb::new(self.provider.clone(), block_number - 1);
-
-                // Execute the host.
-                let client_input = self
-                    .host_executor
-                    .execute(
+            let client_input_from_cache =
+                self.config.cache_dir.as_ref().and_then(
+                    |cache_dir| match try_load_input_from_cache::<C::Primitives>(
+                        cache_dir,
+                        self.config.chain.id(),
                         block_number,
-                        &rpc_db,
-                        &self.provider,
-                        self.config.genesis.clone(),
-                        self.config.custom_beneficiary,
-                        self.config.opcode_tracking,
-                    )
-                    .await?;
+                    ) {
+                        Ok(client_input) => client_input,
+                        Err(e) => {
+                            warn!("Failed to load input from cache: {}", e);
+                            None
+                        }
+                    },
+                );
 
-                if let Some(ref cache_dir) = self.config.cache_dir {
-                    let input_folder = cache_dir.join(format!("input/{}", self.config.chain.id()));
-                    if !input_folder.exists() {
-                        std::fs::create_dir_all(&input_folder)?;
+            let client_input = match client_input_from_cache {
+                Some(mut client_input_from_cache) => {
+                    // Override opcode tracking from cache by the setting provided by the user
+                    client_input_from_cache.opcode_tracking = self.config.opcode_tracking;
+                    client_input_from_cache
+                }
+                None => {
+                    let rpc_db = RpcDb::new(self.provider.clone(), block_number - 1);
+
+                    // Execute the host.
+                    let client_input = self
+                        .host_executor
+                        .execute(
+                            block_number,
+                            &rpc_db,
+                            &self.provider,
+                            self.config.genesis.clone(),
+                            self.config.custom_beneficiary,
+                            self.config.opcode_tracking,
+                        )
+                        .await?;
+
+                    if let Some(ref cache_dir) = self.config.cache_dir {
+                        let input_folder =
+                            cache_dir.join(format!("input/{}", self.config.chain.id()));
+                        if !input_folder.exists() {
+                            std::fs::create_dir_all(&input_folder)?;
+                        }
+
+                        let input_path = input_folder.join(format!("{}.bin", block_number));
+                        let mut cache_file = std::fs::File::create(input_path)?;
+
+                        bincode::serialize_into(&mut cache_file, &client_input)?;
                     }
 
-                    let input_path = input_folder.join(format!("{}.bin", block_number));
-                    let mut cache_file = std::fs::File::create(input_path)?;
-
-                    bincode::serialize_into(&mut cache_file, &client_input)?;
+                    client_input
                 }
+            };
+            client_inputs.push(client_input);
+        }
 
-                client_input
-            }
-        };
-
-        self.process_client(client_input, &self.hooks).await?;
+        self.process_client(client_inputs, &self.hooks).await?;
 
         Ok(())
     }
@@ -376,15 +393,19 @@ impl<C> BlockExecutor<C> for CachedExecutor<C>
 where
     C: ExecutorComponents,
 {
-    async fn execute(&self, block_number: u64) -> eyre::Result<()> {
-        let client_input = try_load_input_from_cache::<C::Primitives>(
-            &self.cache_dir,
-            self.config.chain.id(),
-            block_number,
-        )?
-        .ok_or(eyre::eyre!("No cached input found"))?;
+    async fn execute(&self, start_block: u64, to_block: u64) -> eyre::Result<()> {
+        let mut client_inputs = vec![];
+        for block_number in start_block..=to_block {
+            let client_input = try_load_input_from_cache::<C::Primitives>(
+                &self.cache_dir,
+                self.config.chain.id(),
+                block_number,
+            )?
+            .ok_or(eyre::eyre!("No cached input found"))?;
+            client_inputs.push(client_input);
+        }
 
-        self.process_client(client_input, &self.hooks).await
+        self.process_client(client_inputs, &self.hooks).await
     }
 
     fn client(&self) -> Arc<C::Prover> {

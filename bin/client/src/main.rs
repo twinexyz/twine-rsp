@@ -10,18 +10,28 @@ use std::sync::Arc;
 
 pub fn main() {
     // Read the input.
-    let input = profile_report!(DESERIALZE_INPUTS, {
+    let inputs = profile_report!(DESERIALZE_INPUTS, {
         let input = sp1_zkvm::io::read_vec();
-        serde_json::from_slice::<EthClientExecutorInput>(&input).unwrap()
+        serde_json::from_slice::<Vec<EthClientExecutorInput>>(&input).unwrap()
     });
 
-    // Execute the block.
-    let executor = EthClientExecutor::eth(
-        Arc::new((&input.genesis).try_into().unwrap()),
-        input.custom_beneficiary,
-    );
-    let header = executor.execute(input).expect("failed to execute client");
+    let mut headers = vec![];
 
+    // Execute the block.
+    for input in inputs {
+        let executor = EthClientExecutor::eth(
+            Arc::new((&input.genesis).try_into().unwrap()),
+            input.custom_beneficiary,
+        );
+        let header = executor.execute(input).expect("failed to execute client");
+        headers.push(header);
+    }
+
+    let committed_headers: Vec<CommittedHeader> = headers.into_iter().map(|header| {
+        CommittedHeader {
+            header,
+        }
+    }).collect(); 
     // Commit the block header.
-    sp1_zkvm::io::commit::<CommittedHeader>(&header.into());
+    sp1_zkvm::io::commit::<Vec<CommittedHeader>>(&committed_headers.into());
 }

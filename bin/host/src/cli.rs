@@ -16,6 +16,9 @@ pub struct HostArgs {
     #[clap(long)]
     pub block_number: u64,
 
+    #[clap(long)]
+    pub to_block: Option<u64>,
+
     #[clap(flatten)]
     pub provider: ProviderArgs,
 
