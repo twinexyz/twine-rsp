@@ -91,12 +91,12 @@ pub trait BlockExecutor<C: ExecutorComponents> {
 
             println!("reached in the execute result");
 
-            let (mut public_values, execution_report) = execute_result?;
+            let (public_values, execution_report) = execute_result?;
 
             println!("errored from the public value deserialize?");
 
             // Read the block header.
-            let headers = public_values.read::<Vec<CommittedHeader>>();
+            let headers: Vec<CommittedHeader> = serde_json::from_slice(public_values.as_slice()).expect("could not deserialize");
 
             println!("succesfully made headers {:?}", headers);
 
