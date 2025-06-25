@@ -20,7 +20,8 @@ use tokio::{task, time::sleep};
 use tracing::{info, info_span, warn};
 
 use crate::{
-    executor_components::MaybeProveWithCycles, Config, ExecutionHooks, ExecutorComponents, HostExecutor,
+    executor_components::MaybeProveWithCycles, Config, ExecutionHooks, ExecutorComponents,
+    HostExecutor,
 };
 
 pub type EitherExecutor<C, P> = Either<FullExecutor<C, P>, CachedExecutor<C>>;
@@ -86,11 +87,10 @@ pub trait BlockExecutor<C: ExecutorComponents> {
 
             let execute_result = execute_client(0, self.client(), self.pk(), stdin.clone()).await?;
 
-
             let (public_values, _) = execute_result?;
 
-
-            let public_commitment = PublicCommitment::abi_decode_packed(public_values.as_slice().to_vec());
+            let public_commitment =
+                PublicCommitment::abi_decode_packed(public_values.as_slice().to_vec());
 
             _ = public_commitment;
             // Read the block header.
@@ -104,8 +104,8 @@ pub trait BlockExecutor<C: ExecutorComponents> {
             //     let input_block_hash = client_input[i].current_block.header.hash_slow();
 
             //     if input_block_hash != executed_block_hash {
-            //         return Err(HostError::HeaderMismatch(executed_block_hash, input_block_hash))?;
-            //     }
+            //         return Err(HostError::HeaderMismatch(executed_block_hash,
+            // input_block_hash))?;     }
 
             //     info!(?executed_block_hash, "Execution successful");
 
