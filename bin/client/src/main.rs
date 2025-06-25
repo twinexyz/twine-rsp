@@ -9,6 +9,7 @@ use rsp_client_executor::{
 };
 use revm_primitives::{FixedBytes, keccak256};
 use std::sync::Arc;
+use std::collections::HashMap;
 
 pub fn main() {
     // Read the input.
@@ -18,6 +19,9 @@ pub fn main() {
         serde_json::from_slice::<Vec<EthClientExecutorInput>>(&input).unwrap()
     });
 
+    let validator_set_slice = sp1_zkvm::io::read_vec();
+    let validator_sets: HashMap<String, String> = serde_json::from_slice(&validator_set_slice).unwrap();
+
 
     let mut headers = vec![];
 
@@ -26,6 +30,7 @@ pub fn main() {
         let executor = EthClientExecutor::eth(
             Arc::new((&input.genesis).try_into().unwrap()),
             input.custom_beneficiary,
+            validator_sets.clone(),
         );
         let header = executor.execute(input).expect("failed to execute client");
         headers.push(header);

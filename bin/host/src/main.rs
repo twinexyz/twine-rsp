@@ -1,6 +1,6 @@
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use clap::Parser;
 use execute::PersistExecutionReport;
@@ -70,12 +70,12 @@ async fn main() -> eyre::Result<()> {
         )
         .await?;
 
-        executor.execute(block_number, args.to_block.unwrap_or(block_number)).await?;
+        executor.execute(block_number, args.to_block.unwrap_or(block_number), HashMap::new()).await?; // TODO: load validator set here if necessary
     } else {
         let elf = include_elf!("rsp-client").to_vec();
-        let validator_sets = load_validator_sets();
+        let validator_sets = HashMap::new();
         let block_execution_strategy_factory =
-            create_eth_block_execution_strategy_factory(&config.genesis, config.custom_beneficiary, validator_sets);
+            create_eth_block_execution_strategy_factory(&config.genesis, config.custom_beneficiary, validator_sets.clone());
         let provider = config.rpc_url.as_ref().map(|url| create_provider(url.clone()));
 
         let executor = build_executor::<EthExecutorComponents<_>, _>(
@@ -88,27 +88,27 @@ async fn main() -> eyre::Result<()> {
         )
         .await?;
 
-        executor.execute(block_number, args.to_block.unwrap_or(block_number)).await?;
+        executor.execute(block_number, args.to_block.unwrap_or(block_number), validator_sets.clone()).await?;
     }
 
     Ok(())
 }
 
-fn load_validator_sets() -> HashMap<String, String> {
-    let validator_set_base_path = env::var("L1_VALIDATOR_SET_PATH").expect("provide the base directory path that contains the validator set files for the chains you want to register in the precompiles");
-    let validator_set_files = fs::read_dir(validator_set_base_path).unwrap();
-    let mut validator_set_hashmap = HashMap::new();
-    () = validator_set_files
-        .into_iter()
-        .map(|file| {
-            let file = file.unwrap();
-            let file_name = file.file_name().to_str().unwrap().to_string();
-            let splitted_name: Vec<&str> = file_name.split(".").collect();
-            if RECOGNIZED_CHAINS.contains(&splitted_name[0]) {
-                let validator_set = fs::read_to_string(file.path()).unwrap();
-                validator_set_hashmap.insert(splitted_name[0].to_string(), validator_set);
-            }
-        })
-        .collect();
-    validator_set_hashmap
-}
+// fn load_validator_sets() -> HashMap<String, String> {
+//     let validator_set_base_path = env::var("L1_VALIDATOR_SET_PATH").expect("provide the base directory path that contains the validator set files for the chains you want to register in the precompiles");
+//     let validator_set_files = fs::read_dir(validator_set_base_path).unwrap();
+//     let mut validator_set_hashmap = HashMap::new();
+//     () = validator_set_files
+//         .into_iter()
+//         .map(|file| {
+//             let file = file.unwrap();
+//             let file_name = file.file_name().to_str().unwrap().to_string();
+//             let splitted_name: Vec<&str> = file_name.split(".").collect();
+//             if RECOGNIZED_CHAINS.contains(&splitted_name[0]) {
+//                 let validator_set = fs::read_to_string(file.path()).unwrap();
+//                 validator_set_hashmap.insert(splitted_name[0].to_string(), validator_set);
+//             }
+//         })
+//         .collect();
+//     validator_set_hashmap
+// }
