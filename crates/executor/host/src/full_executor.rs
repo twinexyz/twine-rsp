@@ -11,7 +11,7 @@ use alloy_provider::Provider;
 use either::Either;
 use eyre::bail;
 use reth_primitives_traits::NodePrimitives;
-use rsp_client_executor::{io::{ClientExecutorInput, CommittedHeader}, PublicCommitment};
+use rsp_client_executor::{io::ClientExecutorInput, PublicCommitment};
 use serde::de::DeserializeOwned;
 use sp1_prover::components::CpuProverComponents;
 use sp1_sdk::{ExecutionReport, Prover, SP1ProvingKey, SP1PublicValues, SP1Stdin, SP1VerifyingKey};
@@ -19,8 +19,7 @@ use tokio::{task, time::sleep};
 use tracing::{info, info_span, warn};
 
 use crate::{
-    executor_components::MaybeProveWithCycles, Config, ExecutionHooks, ExecutorComponents,
-    HostError, HostExecutor,
+    executor_components::MaybeProveWithCycles, Config, ExecutionHooks, ExecutorComponents, HostExecutor,
 };
 
 pub type EitherExecutor<C, P> = Either<FullExecutor<C, P>, CachedExecutor<C>>;
