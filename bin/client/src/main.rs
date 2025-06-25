@@ -23,6 +23,9 @@ pub fn main() {
     let validator_sets: HashMap<String, String> = serde_json::from_slice(&validator_set_slice).unwrap();
 
 
+    println!("inputs {:#?}", inputs);
+    println!("validator_sets {:#?}", validator_sets);
+    
     let mut headers = vec![];
 
     // Execute the block.
