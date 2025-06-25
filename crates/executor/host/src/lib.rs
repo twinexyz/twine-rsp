@@ -11,7 +11,7 @@ use revm_primitives::Address;
 use rsp_client_executor::custom::CustomEvmFactory;
 use rsp_primitives::genesis::Genesis;
 use sp1_sdk::SP1ProofMode;
-use std::{path::PathBuf, sync::Arc};
+use std::{collections::HashMap, path::PathBuf, sync::Arc};
 use url::Url;
 
 #[cfg(feature = "alerting")]
@@ -34,12 +34,13 @@ pub use host_executor::{EthHostExecutor, HostExecutor, OpHostExecutor};
 pub fn create_eth_block_execution_strategy_factory(
     genesis: &Genesis,
     custom_beneficiary: Option<Address>,
+    validator_sets: HashMap<String, String>,
 ) -> EthEvmConfig<CustomEvmFactory<EthEvmFactory>> {
     let chain_spec: Arc<ChainSpec> = Arc::new(genesis.try_into().unwrap());
 
     EthEvmConfig::new_with_evm_factory(
         chain_spec,
-        CustomEvmFactory::<EthEvmFactory>::new(custom_beneficiary),
+        CustomEvmFactory::<EthEvmFactory>::new(custom_beneficiary, validator_sets),
     )
 }
 

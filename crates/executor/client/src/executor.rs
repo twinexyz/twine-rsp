@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use alloy_consensus::{BlockHeader, Header};
 use alloy_evm::EthEvmFactory;
@@ -158,11 +158,11 @@ where
 }
 
 impl EthClientExecutor {
-    pub fn eth(chain_spec: Arc<ChainSpec>, custom_beneficiary: Option<Address>) -> Self {
+    pub fn eth(chain_spec: Arc<ChainSpec>, custom_beneficiary: Option<Address>, validator_sets: HashMap<String, String>) -> Self {
         Self {
             evm_config: EthEvmConfig::new_with_evm_factory(
                 chain_spec.clone(),
-                CustomEvmFactory::<EthEvmFactory>::new(custom_beneficiary),
+                CustomEvmFactory::<EthEvmFactory>::new(custom_beneficiary, validator_sets),
             ),
             chain_spec,
         }

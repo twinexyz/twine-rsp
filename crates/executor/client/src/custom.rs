@@ -24,10 +24,16 @@ use revm::{
 };
 use revm_primitives::{hardfork::SpecId, Address};
 use std::{collections::HashMap, fmt::Debug, marker::PhantomData};
+use twine_constants::precompiles::{
+    TWINE_CONSENSUS_VERIFIER_PRECOMPILE_ADDRESS, TWINE_TRANSACTION_PRECOMPILE_ADDRESS,
+    TWINE_ZSTD_PRECOMPILE_ADDRESS,
+};
 
 #[derive(Clone)]
 pub struct CustomPrecompiles {
     pub precompiles: EthPrecompiles,
+    pub twine_precompiles: TwinePrecompiles,
+    pub validator_sets: HashMap<String, String>,
     addresses_to_names: HashMap<Address, String>,
 }
 
@@ -55,7 +61,15 @@ impl Default for CustomPrecompiles {
                 (u64_to_address(8), "bn-pair".to_string()),
                 (u64_to_address(9), "blake2f".to_string()),
                 (u64_to_address(10), "kzg-point-evaluation".to_string()),
+                (TWINE_TRANSACTION_PRECOMPILE_ADDRESS, "twine-transaction-precomile".to_string()),
+                (
+                    TWINE_CONSENSUS_VERIFIER_PRECOMPILE_ADDRESS,
+                    "twine-consensus-verifier-precompile".to_string(),
+                ),
+                (TWINE_ZSTD_PRECOMPILE_ADDRESS, "twine-zstd-precompile-address".to_string()),
             ]),
+            twine_precompiles: TwinePrecompiles::default(),
+            validator_sets: HashMap::new()
         }
     }
 }
@@ -86,6 +100,17 @@ impl<CTX: ContextTr> PrecompileProvider<CTX> for CustomPrecompiles {
             println!("cycle-tracker-report-end: precompile-{name}");
 
             result
+        } else if self.twine_precompiles.contains(address) {
+            if address.eq(&self.twine_precompiles.consensus_precompile) {
+                use twine_l1_consensus_verifier_precompile::ConsensusVerifierPrecompile;
+
+                let consensus_verifier_precompile =
+                    ConsensusVerifierPrecompile::new(self.validator_sets.clone());
+                return consensus_verifier_precompile
+                    .run(context, address, inputs, is_static, gas_limit);
+            } else {
+                Ok(None)
+            }
         } else {
             Ok(None)
         }
@@ -109,11 +134,15 @@ pub struct CustomEvmFactory<F> {
     custom_beneficiary: Option<Address>,
 
     phantom: PhantomData<F>,
+    validator_sets: HashMap<String, String>,
 }
 
 impl<F> CustomEvmFactory<F> {
-    pub fn new(custom_beneficiary: Option<Address>) -> Self {
-        Self { custom_beneficiary, phantom: PhantomData }
+    pub fn new(
+        custom_beneficiary: Option<Address>,
+        validator_sets: HashMap<String, String>,
+    ) -> Self {
+        Self { custom_beneficiary, phantom: PhantomData, validator_sets }
     }
 }
 
@@ -145,7 +174,10 @@ impl EvmFactory for CustomEvmFactory<EthEvmFactory> {
             .with_cfg(input.cfg_env)
             .with_block(input.block_env)
             .build_mainnet_with_inspector(NoOpInspector {})
-            .with_precompiles(CustomPrecompiles::default());
+            .with_precompiles(CustomPrecompiles {
+                validator_sets: self.validator_sets.clone(),
+                ..Default::default()
+            });
 
         EthEvm::new(evm, false)
     }
@@ -191,5 +223,44 @@ impl<CTX, INTR: InterpreterTypes> Inspector<CTX, INTR> for OpCodeTrackingInspect
 
         #[cfg(target_os = "zkvm")]
         println!("cycle-tracker-report-end: opcode-{}", self.current);
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct TwinePrecompiles {
+    pub transaction_precompile: Address,
+    pub consensus_precompile: Address,
+    pub zstd_precompile: Address,
+}
+
+impl TwinePrecompiles {
+    pub fn contains(&self, address: &Address) -> bool {
+        // TODO: extract into a feature 
+        // #[cfg(feature = "twine-l1-consensus-verifier-precompile")] 
+        if self.consensus_precompile.eq(address) {
+            return true;
+        }
+
+        // #[cfg(feature = "twine-l1-transactions-precompile")]
+        if self.transaction_precompile.eq(address) {
+            return true;
+        }
+
+        // #[cfg(feature = "twine-zstd-precompile")]
+        if self.zstd_precompile.eq(address) {
+            return true;
+        }
+
+        false
+    }
+}
+
+impl Default for TwinePrecompiles {
+    fn default() -> Self {
+        Self {
+            transaction_precompile: TWINE_TRANSACTION_PRECOMPILE_ADDRESS,
+            consensus_precompile: TWINE_CONSENSUS_VERIFIER_PRECOMPILE_ADDRESS,
+            zstd_precompile: TWINE_ZSTD_PRECOMPILE_ADDRESS,
+        }
     }
 }

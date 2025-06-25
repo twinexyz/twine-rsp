@@ -129,6 +129,10 @@ op-alloy-consensus = "0.13.0"
 op-alloy-network = "0.13.0"
 op-alloy-rpc-types = "0.13.0"
 
+# weaver dependency 
+twine-l1-consensus-verifier-precompile ={ git = "https://github.com/twinexyz/weaver.git", branch = "feature/parajuliswopnil/ethereum-consensus-verifier"}
+twine-constants ={ git = "https://github.com/twinexyz/weaver.git", branch = "feature/parajuliswopnil/ethereum-consensus-verifier" }
+
 
 [workspace.lints]
 rust.missing_debug_implementations = "warn"

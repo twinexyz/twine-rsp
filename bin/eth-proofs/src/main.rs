@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use alloy_provider::{Provider, ProviderBuilder, WsConnect};
 use clap::Parser;
@@ -44,7 +44,7 @@ async fn main() -> eyre::Result<()> {
 
     let elf = include_elf!("rsp-client").to_vec();
     let block_execution_strategy_factory =
-        create_eth_block_execution_strategy_factory(&config.genesis, None);
+        create_eth_block_execution_strategy_factory(&config.genesis, None, HashMap::new()); // TODO: load validator sets here
 
     let eth_proofs_client = EthProofsClient::new(
         args.eth_proofs_cluster_id,
