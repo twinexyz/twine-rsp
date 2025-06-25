@@ -1,10 +1,5 @@
 use std::{
-    fmt::{Debug, Formatter},
-    fs::{self, File},
-    io::Write,
-    path::{Path, PathBuf},
-    sync::Arc,
-    time::{Duration, Instant},
+    collections::HashMap, fmt::{Debug, Formatter}, fs::{self, File}, io::Write, path::{Path, PathBuf}, sync::Arc, time::{Duration, Instant}
 };
 
 use alloy_provider::Provider;
@@ -55,7 +50,7 @@ where
 
 pub trait BlockExecutor<C: ExecutorComponents> {
     #[allow(async_fn_in_trait)]
-    async fn execute(&self, block_number: u64, to_block: u64) -> eyre::Result<()>;
+    async fn execute(&self, block_number: u64, to_block: u64, validator_sets: HashMap<String, String>) -> eyre::Result<()>;
 
     fn client(&self) -> Arc<C::Prover>;
 
@@ -70,13 +65,18 @@ pub trait BlockExecutor<C: ExecutorComponents> {
         &self,
         client_input: Vec<ClientExecutorInput<C::Primitives>>,
         hooks: &C::Hooks,
+        validator_sets: HashMap<String, String>,
     ) -> eyre::Result<()> {
         // Generate the proof.
         // Execute the block inside the zkVM.
+
         let mut stdin = SP1Stdin::new();
         let buffer = serde_json::to_vec(&client_input).unwrap();
 
-        stdin.write_vec(buffer);
+        stdin.write(&buffer);
+
+        let buffer = serde_json::to_vec(&validator_sets).unwrap();
+        stdin.write(&buffer);
 
         let stdin = Arc::new(stdin);
 
@@ -188,10 +188,10 @@ where
     C: ExecutorComponents,
     P: Provider<C::Network> + Clone,
 {
-    async fn execute(&self, block_number: u64, to_block: u64) -> eyre::Result<()> {
+    async fn execute(&self, block_number: u64, to_block: u64, validator_sets: HashMap<String, String>) -> eyre::Result<()> {
         match self {
-            Either::Left(ref executor) => executor.execute(block_number, to_block).await,
-            Either::Right(ref executor) => executor.execute(block_number, to_block).await,
+            Either::Left(ref executor) => executor.execute(block_number, to_block, validator_sets).await,
+            Either::Right(ref executor) => executor.execute(block_number, to_block, validator_sets).await,
         }
     }
 
@@ -284,12 +284,14 @@ where
     }
 }
 
+// pub struct 
+
 impl<C, P> BlockExecutor<C> for FullExecutor<C, P>
 where
     C: ExecutorComponents,
     P: Provider<C::Network> + Clone,
 {
-    async fn execute(&self, start_block: u64, to_block: u64) -> eyre::Result<()> {
+    async fn execute(&self, start_block: u64, to_block: u64, validator_sets: HashMap<String, String>) -> eyre::Result<()> {
         let mut client_inputs = vec![];
         for block_number in start_block..=to_block {
             self.hooks.on_execution_start(block_number).await?;
@@ -350,7 +352,7 @@ where
             client_inputs.push(client_input);
         }
 
-        self.process_client(client_inputs, &self.hooks).await?;
+        self.process_client(client_inputs, &self.hooks, validator_sets).await?;
 
         Ok(())
     }
@@ -422,7 +424,7 @@ impl<C> BlockExecutor<C> for CachedExecutor<C>
 where
     C: ExecutorComponents,
 {
-    async fn execute(&self, start_block: u64, to_block: u64) -> eyre::Result<()> {
+    async fn execute(&self, start_block: u64, to_block: u64, validator_sets: HashMap<String, String>) -> eyre::Result<()> {
         let mut client_inputs = vec![];
         for block_number in start_block..=to_block {
             let client_input = try_load_input_from_cache::<C::Primitives>(
@@ -434,7 +436,7 @@ where
             client_inputs.push(client_input);
         }
 
-        self.process_client(client_inputs, &self.hooks).await
+        self.process_client(client_inputs, &self.hooks, validator_sets).await
     }
 
     fn client(&self) -> Arc<C::Prover> {

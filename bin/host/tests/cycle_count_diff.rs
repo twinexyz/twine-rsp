@@ -57,7 +57,7 @@ async fn test_in_zkvm() {
     .await
     .unwrap();
 
-    executor.execute(20600000, 20600000).await.unwrap();
+    executor.execute(20600000, 20600000, HashMap::new()).await.unwrap(); // TODO: load validator set if necessary 
 }
 
 enum Hook {

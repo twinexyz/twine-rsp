@@ -1,5 +1,5 @@
 use std::iter::once;
-
+use std::collections::HashMap as StdHashMap;
 use alloy_consensus::{Block, BlockHeader, Header};
 use alloy_primitives::map::HashMap;
 use itertools::Itertools;
@@ -53,6 +53,19 @@ pub struct ClientExecutorInput<P: NodePrimitives> {
     pub custom_beneficiary: Option<Address>,
     /// Whether to track the cycle count of opcodes.
     pub opcode_tracking: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ClientInput<P: NodePrimitives> {
+    pub client_input: ClientExecutorInput<P>, 
+    pub validator_sets: StdHashMap<String, String>,
+}
+
+impl <P: NodePrimitives> ClientExecutorInput<P> {
+    pub fn to_vec(&self) -> Vec<u8> {
+        let vec = serde_json::to_vec(self).unwrap();
+        vec
+    } 
 }
 
 impl<P: NodePrimitives> ClientExecutorInput<P> {
