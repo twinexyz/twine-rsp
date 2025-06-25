@@ -71,12 +71,17 @@ async fn main() -> eyre::Result<()> {
         )
         .await?;
 
-        executor.execute(block_number, args.to_block.unwrap_or(block_number), HashMap::new()).await?; // TODO: load validator set here if necessary
+        executor
+            .execute(block_number, args.to_block.unwrap_or(block_number), HashMap::new())
+            .await?; // TODO: load validator set here if necessary
     } else {
         let elf = include_elf!("rsp-client").to_vec();
         let validator_sets = load_validator_sets();
-        let block_execution_strategy_factory =
-            create_eth_block_execution_strategy_factory(&config.genesis, config.custom_beneficiary, validator_sets.clone());
+        let block_execution_strategy_factory = create_eth_block_execution_strategy_factory(
+            &config.genesis,
+            config.custom_beneficiary,
+            validator_sets.clone(),
+        );
         let provider = config.rpc_url.as_ref().map(|url| create_provider(url.clone()));
 
         let executor = build_executor::<EthExecutorComponents<_>, _>(
@@ -89,7 +94,9 @@ async fn main() -> eyre::Result<()> {
         )
         .await?;
 
-        executor.execute(block_number, args.to_block.unwrap_or(block_number), validator_sets.clone()).await?;
+        executor
+            .execute(block_number, args.to_block.unwrap_or(block_number), validator_sets.clone())
+            .await?;
     }
 
     Ok(())

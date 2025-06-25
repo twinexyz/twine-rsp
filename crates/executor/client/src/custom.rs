@@ -161,8 +161,8 @@ pub struct TwinePrecompiles {
 
 impl TwinePrecompiles {
     pub fn contains(&self, address: &Address) -> bool {
-        // TODO: extract into a feature 
-        // #[cfg(feature = "twine-l1-consensus-verifier-precompile")] 
+        // TODO: extract into a feature
+        // #[cfg(feature = "twine-l1-consensus-verifier-precompile")]
         if self.consensus_precompile.eq(address) {
             return true;
         }

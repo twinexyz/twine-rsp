@@ -40,8 +40,11 @@ async fn test_in_zkvm() {
 
     let rpc_url = Url::parse(env::var("RPC_1").unwrap().as_str()).expect("invalid rpc url");
     let elf = include_elf!("rsp-client").to_vec();
-    let block_execution_strategy_factory =
-        create_eth_block_execution_strategy_factory(&config.genesis, config.custom_beneficiary, HashMap::new()); // TODO: load validator sets here
+    let block_execution_strategy_factory = create_eth_block_execution_strategy_factory(
+        &config.genesis,
+        config.custom_beneficiary,
+        HashMap::new(),
+    ); // TODO: load validator sets here
 
     let provider = RootProvider::<Ethereum>::new_http(rpc_url);
     let client = Arc::new(EnvProver::new());
@@ -57,7 +60,8 @@ async fn test_in_zkvm() {
     .await
     .unwrap();
 
-    executor.execute(20600000, 20600000, HashMap::new()).await.unwrap(); // TODO: load validator set if necessary 
+    executor.execute(20600000, 20600000, HashMap::new()).await.unwrap(); // TODO: load validator set
+                                                                         // if necessary
 }
 
 enum Hook {
