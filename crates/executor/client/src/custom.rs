@@ -151,3 +151,42 @@ impl<CTX, INTR: InterpreterTypes> Inspector<CTX, INTR> for OpCodeTrackingInspect
         println!("cycle-tracker-report-end: opcode-{}", self.current);
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct TwinePrecompiles {
+    pub transaction_precompile: Address,
+    pub consensus_precompile: Address,
+    pub zstd_precompile: Address,
+}
+
+impl TwinePrecompiles {
+    pub fn contains(&self, address: &Address) -> bool {
+        // TODO: extract into a feature 
+        // #[cfg(feature = "twine-l1-consensus-verifier-precompile")] 
+        if self.consensus_precompile.eq(address) {
+            return true;
+        }
+
+        // #[cfg(feature = "twine-l1-transactions-precompile")]
+        if self.transaction_precompile.eq(address) {
+            return true;
+        }
+
+        // #[cfg(feature = "twine-zstd-precompile")]
+        if self.zstd_precompile.eq(address) {
+            return true;
+        }
+
+        false
+    }
+}
+
+impl Default for TwinePrecompiles {
+    fn default() -> Self {
+        Self {
+            transaction_precompile: TWINE_TRANSACTION_PRECOMPILE_ADDRESS,
+            consensus_precompile: TWINE_CONSENSUS_VERIFIER_PRECOMPILE_ADDRESS,
+            zstd_precompile: TWINE_ZSTD_PRECOMPILE_ADDRESS,
+        }
+    }
+}

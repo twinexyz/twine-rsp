@@ -36,7 +36,7 @@ pub struct HostExecutor<C: ConfigureEvm, CS> {
 }
 
 impl EthHostExecutor {
-    pub fn eth(chain_spec: Arc<ChainSpec>, custom_beneficiary: Option<Address>) -> Self {
+    pub fn eth(chain_spec: Arc<ChainSpec>, custom_beneficiary: Option<Address>, validator_sets: HashMap<String, String>) -> Self {
         Self {
             evm_config: EthEvmConfig::new_with_evm_factory(
                 chain_spec.clone(),

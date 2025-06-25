@@ -130,6 +130,10 @@ op-alloy-consensus = "0.19.0"
 op-alloy-network = "0.19.0"
 op-alloy-rpc-types = "0.19.0"
 
+# weaver dependency 
+twine-l1-consensus-verifier-precompile ={ git = "https://github.com/twinexyz/weaver.git", branch = "staging"}
+twine-constants ={ git = "https://github.com/twinexyz/weaver.git", branch = "staging" }
+
 
 [workspace.lints]
 rust.missing_debug_implementations = "warn"

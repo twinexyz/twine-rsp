@@ -54,6 +54,10 @@ alloy-rpc-types.workspace = true
 op-alloy-network = { workspace = true, optional = true }
 op-alloy-rpc-types = { workspace = true, optional = true }
 
+# weaver dependency 
+twine-l1-consensus-verifier-precompile.workspace = true 
+twine-constants.workspace = true 
+
 
 [features]
 optimism = [
