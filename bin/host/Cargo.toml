@@ -39,6 +39,9 @@ revm-bytecode.workspace = true
 sp1-sdk.workspace = true
 sp1-core-executor.workspace = true
 
+# weaver dependency 
+twine-constants.workspace = true 
+
 [dev-dependencies]
 alloy-network.workspace = true
 rsp-client-executor.workspace = true
