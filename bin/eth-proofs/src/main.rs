@@ -87,7 +87,8 @@ async fn main() -> eyre::Result<()> {
         // Wait for the block to be avaliable in the HTTP provider
         executor.wait_for_block(header.number).await?;
 
-        if let Err(err) = executor.execute(header.number, header.number, HashMap::new()).await { // TODO: load validator set if necessary
+        if let Err(err) = executor.execute(header.number, header.number, HashMap::new()).await {
+            // TODO: load validator set if necessary
             let error_message = format!("Error handling block {}: {err}", header.number);
             error!(error_message);
 

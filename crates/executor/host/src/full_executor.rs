@@ -1,5 +1,11 @@
 use std::{
-    collections::HashMap, fmt::{Debug, Formatter}, fs::{self, File}, io::Write, path::{Path, PathBuf}, sync::Arc, time::{Duration, Instant}
+    collections::HashMap,
+    fmt::{Debug, Formatter},
+    fs::{self, File},
+    io::Write,
+    path::{Path, PathBuf},
+    sync::Arc,
+    time::{Duration, Instant},
 };
 
 use alloy_provider::Provider;
@@ -50,7 +56,12 @@ where
 
 pub trait BlockExecutor<C: ExecutorComponents> {
     #[allow(async_fn_in_trait)]
-    async fn execute(&self, block_number: u64, to_block: u64, validator_sets: HashMap<String, String>) -> eyre::Result<()>;
+    async fn execute(
+        &self,
+        block_number: u64,
+        to_block: u64,
+        validator_sets: HashMap<String, String>,
+    ) -> eyre::Result<()>;
 
     fn client(&self) -> Arc<C::Prover>;
 
@@ -188,10 +199,19 @@ where
     C: ExecutorComponents,
     P: Provider<C::Network> + Clone,
 {
-    async fn execute(&self, block_number: u64, to_block: u64, validator_sets: HashMap<String, String>) -> eyre::Result<()> {
+    async fn execute(
+        &self,
+        block_number: u64,
+        to_block: u64,
+        validator_sets: HashMap<String, String>,
+    ) -> eyre::Result<()> {
         match self {
-            Either::Left(ref executor) => executor.execute(block_number, to_block, validator_sets).await,
-            Either::Right(ref executor) => executor.execute(block_number, to_block, validator_sets).await,
+            Either::Left(ref executor) => {
+                executor.execute(block_number, to_block, validator_sets).await
+            }
+            Either::Right(ref executor) => {
+                executor.execute(block_number, to_block, validator_sets).await
+            }
         }
     }
 
@@ -284,14 +304,19 @@ where
     }
 }
 
-// pub struct 
+// pub struct
 
 impl<C, P> BlockExecutor<C> for FullExecutor<C, P>
 where
     C: ExecutorComponents,
     P: Provider<C::Network> + Clone,
 {
-    async fn execute(&self, start_block: u64, to_block: u64, validator_sets: HashMap<String, String>) -> eyre::Result<()> {
+    async fn execute(
+        &self,
+        start_block: u64,
+        to_block: u64,
+        validator_sets: HashMap<String, String>,
+    ) -> eyre::Result<()> {
         let mut client_inputs = vec![];
         for block_number in start_block..=to_block {
             self.hooks.on_execution_start(block_number).await?;
@@ -424,7 +449,12 @@ impl<C> BlockExecutor<C> for CachedExecutor<C>
 where
     C: ExecutorComponents,
 {
-    async fn execute(&self, start_block: u64, to_block: u64, validator_sets: HashMap<String, String>) -> eyre::Result<()> {
+    async fn execute(
+        &self,
+        start_block: u64,
+        to_block: u64,
+        validator_sets: HashMap<String, String>,
+    ) -> eyre::Result<()> {
         let mut client_inputs = vec![];
         for block_number in start_block..=to_block {
             let client_input = try_load_input_from_cache::<C::Primitives>(

@@ -56,6 +56,8 @@ op-alloy-rpc-types = { workspace = true, optional = true }
 
 # weaver dependency 
 twine-l1-consensus-verifier-precompile.workspace = true 
+twine-l1-transactions-precompile.workspace = true 
+twine-zstd-precompile.workspace = true 
 twine-constants.workspace = true 
 
 

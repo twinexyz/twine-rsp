@@ -28,6 +28,8 @@ use twine_constants::precompiles::{
     TWINE_CONSENSUS_VERIFIER_PRECOMPILE_ADDRESS, TWINE_TRANSACTION_PRECOMPILE_ADDRESS,
     TWINE_ZSTD_PRECOMPILE_ADDRESS,
 };
+use twine_l1_transactions_precompile::TransactionPrecompile;
+use twine_zstd_precompile::ZStdPrecompile;
 
 #[derive(Clone)]
 pub struct CustomPrecompiles {
@@ -69,7 +71,7 @@ impl Default for CustomPrecompiles {
                 (TWINE_ZSTD_PRECOMPILE_ADDRESS, "twine-zstd-precompile-address".to_string()),
             ]),
             twine_precompiles: TwinePrecompiles::default(),
-            validator_sets: HashMap::new()
+            validator_sets: HashMap::new(),
         }
     }
 }
@@ -108,6 +110,10 @@ impl<CTX: ContextTr> PrecompileProvider<CTX> for CustomPrecompiles {
                     ConsensusVerifierPrecompile::new(self.validator_sets.clone());
                 return consensus_verifier_precompile
                     .run(context, address, inputs, is_static, gas_limit);
+            } else if address.eq(&self.twine_precompiles.transaction_precompile) {
+                return TransactionPrecompile::run(context, address, inputs, is_static, gas_limit);
+            } else if address.eq(&self.twine_precompiles.zstd_precompile) {
+                return ZStdPrecompile::run(context, address, inputs, is_static, gas_limit);
             } else {
                 Ok(None)
             }
@@ -235,8 +241,8 @@ pub struct TwinePrecompiles {
 
 impl TwinePrecompiles {
     pub fn contains(&self, address: &Address) -> bool {
-        // TODO: extract into a feature 
-        // #[cfg(feature = "twine-l1-consensus-verifier-precompile")] 
+        // TODO: extract into a feature
+        // #[cfg(feature = "twine-l1-consensus-verifier-precompile")]
         if self.consensus_precompile.eq(address) {
             return true;
         }

@@ -205,7 +205,7 @@ impl ExecutionHooks for PersistExecutionReport {
 
         if let Ok(_) = self.write_record::<P>(&mut writer, executed_block, execution_report) {
             writer.flush()?;
-            return Ok(())
+            return Ok(());
         }
         println!("could not write csv report");
         Ok(())

@@ -93,7 +93,8 @@ async fn run_eth_e2e(
     let chain_spec: Arc<ChainSpec> = Arc::new(genesis.try_into().unwrap());
 
     // Setup the host executor.
-    let host_executor = EthHostExecutor::eth(chain_spec.clone(), custom_beneficiary, HashMap::new());
+    let host_executor =
+        EthHostExecutor::eth(chain_spec.clone(), custom_beneficiary, HashMap::new());
 
     // Setup the client executor.
     let client_executor = EthClientExecutor::eth(chain_spec, custom_beneficiary, HashMap::new());

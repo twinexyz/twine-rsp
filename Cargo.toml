@@ -131,6 +131,8 @@ op-alloy-rpc-types = "0.13.0"
 
 # weaver dependency 
 twine-l1-consensus-verifier-precompile ={ git = "https://github.com/twinexyz/weaver.git", branch = "feature/parajuliswopnil/ethereum-consensus-verifier"}
+twine-l1-transactions-precompile = { git = "https://github.com/twinexyz/weaver.git", branch = "feature/parajuliswopnil/ethereum-consensus-verifier"}
+twine-zstd-precompile = { git = "https://github.com/twinexyz/weaver.git", branch = "feature/parajuliswopnil/ethereum-consensus-verifier"} 
 twine-constants ={ git = "https://github.com/twinexyz/weaver.git", branch = "feature/parajuliswopnil/ethereum-consensus-verifier" }
 
 

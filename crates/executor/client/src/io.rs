@@ -1,5 +1,3 @@
-use std::iter::once;
-use std::collections::HashMap as StdHashMap;
 use alloy_consensus::{Block, BlockHeader, Header};
 use alloy_primitives::map::HashMap;
 use itertools::Itertools;
@@ -16,6 +14,7 @@ use rsp_mpt::EthereumState;
 use rsp_primitives::genesis::Genesis;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
+use std::{collections::HashMap as StdHashMap, iter::once};
 
 use crate::error::ClientError;
 
@@ -57,15 +56,15 @@ pub struct ClientExecutorInput<P: NodePrimitives> {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ClientInput<P: NodePrimitives> {
-    pub client_input: ClientExecutorInput<P>, 
+    pub client_input: ClientExecutorInput<P>,
     pub validator_sets: StdHashMap<String, String>,
 }
 
-impl <P: NodePrimitives> ClientExecutorInput<P> {
+impl<P: NodePrimitives> ClientExecutorInput<P> {
     pub fn to_vec(&self) -> Vec<u8> {
         let vec = serde_json::to_vec(self).unwrap();
         vec
-    } 
+    }
 }
 
 impl<P: NodePrimitives> ClientExecutorInput<P> {
