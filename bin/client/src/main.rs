@@ -15,11 +15,11 @@ pub fn main() {
     // Read the input.
 
     let inputs = profile_report!(DESERIALZE_INPUTS, {
-        let input = sp1_zkvm::io::read_vec();
+        let input: Vec<u8> = sp1_zkvm::io::read();
         serde_json::from_slice::<Vec<EthClientExecutorInput>>(&input).unwrap()
     });
 
-    let validator_set_slice = sp1_zkvm::io::read_vec();
+    let validator_set_slice: Vec<u8> = sp1_zkvm::io::read();
     let validator_sets: HashMap<String, String> = serde_json::from_slice(&validator_set_slice).unwrap();
 
 
