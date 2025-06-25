@@ -72,13 +72,11 @@ pub trait BlockExecutor<C: ExecutorComponents> {
     ) -> eyre::Result<()> {
         // Generate the proof.
         // Execute the block inside the zkVM.
-        println!("in process client");
         let mut stdin = SP1Stdin::new();
         let buffer = serde_json::to_vec(&client_input).unwrap();
 
         stdin.write_vec(buffer);
 
-        println!("after serialization");
         let stdin = Arc::new(stdin);
 
         if self.config().skip_client_execution {
@@ -88,15 +86,13 @@ pub trait BlockExecutor<C: ExecutorComponents> {
 
             let execute_result = execute_client(0, self.client(), self.pk(), stdin.clone()).await?;
 
-            println!("reached in the execute result");
 
             let (public_values, _) = execute_result?;
 
-            println!("errored from the public value deserialize?");
 
             let public_commitment = PublicCommitment::abi_decode_packed(public_values.as_slice().to_vec());
 
-            println!("Public Commitment {:#?}", public_commitment);
+            _ = public_commitment;
             // Read the block header.
             // let headers: Vec<CommittedHeader> =
             //     serde_json::from_slice(public_values.as_slice()).expect("could not deserialize");
@@ -353,8 +349,6 @@ where
             };
             client_inputs.push(client_input);
         }
-
-        println!("before process client");
 
         self.process_client(client_inputs, &self.hooks).await?;
 

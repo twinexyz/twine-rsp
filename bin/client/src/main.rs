@@ -13,13 +13,11 @@ use std::sync::Arc;
 pub fn main() {
     // Read the input.
 
-    println!("is this actually called after that??");
     let inputs = profile_report!(DESERIALZE_INPUTS, {
         let input = sp1_zkvm::io::read_vec();
         serde_json::from_slice::<Vec<EthClientExecutorInput>>(&input).unwrap()
     });
 
-    println!("deserialization issue???");
 
     let mut headers = vec![];
 
@@ -29,7 +27,6 @@ pub fn main() {
             Arc::new((&input.genesis).try_into().unwrap()),
             input.custom_beneficiary,
         );
-        println!("inside the for block");
         let header = executor.execute(input).expect("failed to execute client");
         headers.push(header);
     }
@@ -54,7 +51,5 @@ pub fn main() {
         PublicCommitment { from_block: headers.first().unwrap().number, to_block: headers.last().unwrap().number, batch_hash: keccak256(pub_commitment_slice) };
 
     // Commit the block header.
-    println!("commiting the slice");
     sp1_zkvm::io::commit_slice(&public_commitment.abi_encode_packed());
-    println!("commiting completed. ");
 }
