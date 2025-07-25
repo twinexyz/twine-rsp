@@ -2650,57 +2650,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ethereum_hashing"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c853bd72c9e5787f8aafc3df2907c2ed03cff3150c3acd94e2e53a98ab70a8ab"
-dependencies = [
- "cpufeatures",
- "ring",
- "sha2 0.10.8 (git+https://github.com/sp1-patches/RustCrypto-hashes?tag=patch-sha2-0.10.8-sp1-4.0.0)",
-]
-
-[[package]]
-name = "ethereum_serde_utils"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3dc1355dbb41fbbd34ec28d4fb2a57d9a70c67ac3c19f6a5ca4d4a176b9e997a"
-dependencies = [
- "alloy-primitives",
- "hex",
- "serde",
- "serde_derive",
- "serde_json",
-]
-
-[[package]]
-name = "ethereum_ssz"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ca8ba45b63c389c6e115b095ca16381534fdcc03cf58176a3f8554db2dbe19b"
-dependencies = [
- "alloy-primitives",
- "ethereum_serde_utils",
- "itertools 0.13.0",
- "serde",
- "serde_derive",
- "smallvec",
- "typenum",
-]
-
-[[package]]
-name = "ethereum_ssz_derive"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0dd55d08012b4e0dfcc92b8d6081234df65f2986ad34cc76eeed69c5e2ce7506"
-dependencies = [
- "darling",
- "proc-macro2",
- "quote",
- "syn 2.0.100",
-]
-
-[[package]]
 name = "event-listener"
 version = "2.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3751,7 +3700,7 @@ dependencies = [
  "hex",
  "serde_arrays",
  "sha2 0.10.8 (git+https://github.com/sp1-patches/RustCrypto-hashes?tag=patch-sha2-0.10.8-sp1-4.0.0)",
- "sp1_bls12_381 0.8.0-sp1-5.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sp1_bls12_381",
  "spin",
 ]
 
@@ -6034,6 +5983,7 @@ dependencies = [
  "itertools 0.14.0",
  "nybbles",
  "rayon",
+ "reth-codecs",
  "reth-primitives-traits",
  "revm-database",
  "serde",
@@ -6356,6 +6306,7 @@ dependencies = [
  "eyre",
  "madato",
  "reth-primitives-traits",
+ "reth-trie-common",
  "revm-bytecode",
  "rsp-client-executor",
  "rsp-host-executor",
@@ -7667,22 +7618,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sp1_bls12_381"
-version = "0.8.0-sp1-5.0.0"
-source = "git+https://github.com/sp1-patches/bls12_381?branch=n%2Frelease-latest#16d4b12ceeb953d9fae9280fcd4309f128259476"
-dependencies = [
- "cfg-if",
- "digest 0.10.7",
- "ff 0.13.1",
- "group 0.13.0",
- "hex",
- "pairing 0.23.0",
- "rand_core 0.6.4",
- "sp1-lib",
- "subtle",
-]
-
-[[package]]
 name = "spin"
 version = "0.9.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7908,22 +7843,6 @@ dependencies = [
  "tracing",
  "url",
  "urlencoding",
-]
-
-[[package]]
-name = "ssz_types"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75b55bedc9a18ed2860a46d6beb4f4082416ee1d60be0cc364cebdcdddc7afd4"
-dependencies = [
- "ethereum_serde_utils",
- "ethereum_ssz",
- "itertools 0.13.0",
- "serde",
- "serde_derive",
- "smallvec",
- "tree_hash",
- "typenum",
 ]
 
 [[package]]
@@ -8648,31 +8567,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tree_hash"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee44f4cef85f88b4dea21c0b1f58320bdf35715cf56d840969487cff00613321"
-dependencies = [
- "alloy-primitives",
- "ethereum_hashing",
- "ethereum_ssz",
- "smallvec",
- "typenum",
-]
-
-[[package]]
-name = "tree_hash_derive"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0bee2ea1551f90040ab0e34b6fb7f2fa3bad8acc925837ac654f2c78a13e3089"
-dependencies = [
- "darling",
- "proc-macro2",
- "quote",
- "syn 2.0.100",
-]
-
-[[package]]
 name = "try-lock"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8700,35 +8594,15 @@ dependencies = [
 [[package]]
 name = "twine-constants"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fintegration-with-merkora#df82ec018e7c923b3ee6ac9c5f3f256dfdb5d7b5"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#88461997e90590a850f65373081c8df4e5cdb464"
 dependencies = [
  "alloy-primitives",
-]
-
-[[package]]
-name = "twine-ethereum-consensus-prover-lib"
-version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fintegration-with-merkora#df82ec018e7c923b3ee6ac9c5f3f256dfdb5d7b5"
-dependencies = [
- "alloy-primitives",
- "ethereum_ssz",
- "ethereum_ssz_derive",
- "eyre",
- "hex",
- "serde",
- "serde_json",
- "sha2 0.10.8 (git+https://github.com/sp1-patches/RustCrypto-hashes?tag=patch-sha2-0.10.8-sp1-4.0.0)",
- "sp1_bls12_381 0.8.0-sp1-5.0.0 (git+https://github.com/sp1-patches/bls12_381?branch=n%2Frelease-latest)",
- "ssz_types",
- "tree_hash",
- "tree_hash_derive",
- "typenum",
 ]
 
 [[package]]
 name = "twine-evm-contracts"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fintegration-with-merkora#df82ec018e7c923b3ee6ac9c5f3f256dfdb5d7b5"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#88461997e90590a850f65373081c8df4e5cdb464"
 dependencies = [
  "alloy-contract",
  "alloy-sol-types",
@@ -8737,30 +8611,18 @@ dependencies = [
 [[package]]
 name = "twine-l1-consensus-verifier-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fintegration-with-merkora#df82ec018e7c923b3ee6ac9c5f3f256dfdb5d7b5"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#88461997e90590a850f65373081c8df4e5cdb464"
 dependencies = [
- "alloy-consensus",
  "alloy-primitives",
- "alloy-sol-types",
- "ethereum_ssz",
- "ethereum_ssz_derive",
  "reth-revm",
  "reth-tracing",
  "revm-context",
- "serde",
- "serde_json",
- "ssz_types",
- "twine-constants",
- "twine-ethereum-consensus-prover-lib",
- "twine-l1-utils",
- "twine-solana-consensus-prover-lib",
- "twine-solana-sdk",
 ]
 
 [[package]]
 name = "twine-l1-transactions-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fintegration-with-merkora#df82ec018e7c923b3ee6ac9c5f3f256dfdb5d7b5"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#88461997e90590a850f65373081c8df4e5cdb464"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -8782,7 +8644,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-utils"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fintegration-with-merkora#df82ec018e7c923b3ee6ac9c5f3f256dfdb5d7b5"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#88461997e90590a850f65373081c8df4e5cdb464"
 dependencies = [
  "reth-revm",
  "twine-constants",
@@ -8791,7 +8653,7 @@ dependencies = [
 [[package]]
 name = "twine-solana-consensus-prover-lib"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fintegration-with-merkora#df82ec018e7c923b3ee6ac9c5f3f256dfdb5d7b5"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#88461997e90590a850f65373081c8df4e5cdb464"
 dependencies = [
  "bincode",
  "borsh 1.5.7",
@@ -8809,7 +8671,7 @@ dependencies = [
 [[package]]
 name = "twine-solana-sdk"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fintegration-with-merkora#df82ec018e7c923b3ee6ac9c5f3f256dfdb5d7b5"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#88461997e90590a850f65373081c8df4e5cdb464"
 dependencies = [
  "bincode",
  "blake3 1.5.4",
@@ -8833,7 +8695,7 @@ dependencies = [
 [[package]]
 name = "twine-zstd-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fintegration-with-merkora#df82ec018e7c923b3ee6ac9c5f3f256dfdb5d7b5"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#88461997e90590a850f65373081c8df4e5cdb464"
 dependencies = [
  "alloy-primitives",
  "alloy-sol-types",
