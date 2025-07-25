@@ -1,5 +1,4 @@
 use std::{
-    collections::HashMap,
     fmt::{Debug, Formatter},
     fs::{self, File},
     io::Write,
@@ -12,11 +11,15 @@ use alloy_provider::Provider;
 use either::Either;
 use eyre::bail;
 use reth_primitives_traits::NodePrimitives;
-use rsp_client_executor::{io::ClientExecutorInput, PublicCommitment};
+use rsp_client_executor::{
+    io::{ClientExecutorInput, ClientInput},
+    PublicCommitment,
+};
 use rsp_rpc_db::RpcDb;
 use serde::de::DeserializeOwned;
 use sp1_prover::components::CpuProverComponents;
 use sp1_sdk::{ExecutionReport, Prover, SP1ProvingKey, SP1PublicValues, SP1Stdin, SP1VerifyingKey};
+use std::{collections::HashMap as StdHashMap};
 use tokio::{task, time::sleep};
 use tracing::{info, info_span, warn};
 
@@ -60,7 +63,8 @@ pub trait BlockExecutor<C: ExecutorComponents> {
         &self,
         block_number: u64,
         to_block: u64,
-        validator_sets: HashMap<String, String>,
+        state_proofs: Option<Vec<u8>>,
+        validator_sets: StdHashMap<String, String>,
     ) -> eyre::Result<()>;
 
     fn client(&self) -> Arc<C::Prover>;
@@ -76,17 +80,17 @@ pub trait BlockExecutor<C: ExecutorComponents> {
         &self,
         client_input: Vec<ClientExecutorInput<C::Primitives>>,
         hooks: &C::Hooks,
-        validator_sets: HashMap<String, String>,
+        state_proofs: Option<Vec<u8>>,
+        validator_sets: StdHashMap<String, String>,
     ) -> eyre::Result<()> {
         // Generate the proof.
         // Execute the block inside the zkVM.
 
+        let zk_client_input = ClientInput { client_input: client_input.clone(), state_proofs, validator_sets };
+
         let mut stdin = SP1Stdin::new();
-        let buffer = serde_json::to_vec(&client_input).unwrap();
+        let buffer = serde_json::to_vec(&zk_client_input).unwrap();
 
-        stdin.write(&buffer);
-
-        let buffer = serde_json::to_vec(&validator_sets).unwrap();
         stdin.write(&buffer);
 
         let stdin = Arc::new(stdin);
@@ -101,9 +105,12 @@ pub trait BlockExecutor<C: ExecutorComponents> {
             let (public_values, _) = execute_result?;
 
             let public_commitment =
-                PublicCommitment::abi_decode_packed(public_values.as_slice().to_vec());
+                PublicCommitment::abi_decode_packed(public_values.as_slice().to_vec())
+                    .map_err(|e| eyre::eyre!(e))?;
 
-            _ = public_commitment;
+            println!("Public Commitment: {:#?}", public_commitment);
+
+            // _ = public_commitment;
             // Read the block header.
             // let headers: Vec<CommittedHeader> =
             //     serde_json::from_slice(public_values.as_slice()).expect("could not deserialize");
@@ -132,49 +139,49 @@ pub trait BlockExecutor<C: ExecutorComponents> {
         if let Some(prove_mode) = self.config().prove_mode {
             info!("Starting proof generation");
 
-            let proving_start = Instant::now();
-            for block_number in client_input.clone().first().unwrap().current_block.number..=
-                client_input.last().unwrap().current_block.number
-            {
-                hooks.on_proving_start(block_number).await?;
-            }
+                let proving_start = Instant::now();
+                for block_number in client_input.clone().first().unwrap().current_block.number
+                    ..=client_input.last().unwrap().current_block.number
+                {
+                    hooks.on_proving_start(block_number).await?;
+                }
 
-            let client = self.client();
-            let pk = self.pk();
+                let client = self.client();
+                let pk = self.pk();
 
-            let (proof, cycle_count) = task::spawn_blocking(move || {
-                client
-                    .prove_with_cycles(pk.as_ref(), &stdin, prove_mode)
-                    .map_err(|err| eyre::eyre!("{err}"))
-            })
-            .await
-            .map_err(|err| eyre::eyre!("{err}"))??;
+                let (proof, cycle_count) = task::spawn_blocking(move || {
+                    client
+                        .prove_with_cycles(pk.as_ref(), &stdin, prove_mode)
+                        .map_err(|err| eyre::eyre!("{err}"))
+                })
+                .await
+                .map_err(|err| eyre::eyre!("{err}"))??;
 
-            let proving_duration = proving_start.elapsed();
-            let proof_bytes = bincode::serialize(&proof.proof).unwrap();
-            let proof = serde_json::to_string(&proof).expect("could not serialize proof to string");
+                let proving_duration = proving_start.elapsed();
+                let proof_bytes = bincode::serialize(&proof.proof).unwrap();
+                let proof = serde_json::to_string(&proof).expect("could not serialize proof to string");
 
-            save_proof_to_file(
-                proof,
-                client_input.first().unwrap().current_block.number,
-                client_input.last().unwrap().current_block.number,
-            );
+                save_proof_to_file(
+                    proof,
+                    client_input.first().unwrap().current_block.number,
+                    client_input.last().unwrap().current_block.number,
+                );
 
-            for block_number in client_input.first().unwrap().current_block.number..=
-                client_input.last().unwrap().current_block.number
-            {
-                hooks
-                    .on_proving_end(
-                        block_number,
-                        &proof_bytes,
-                        self.vk().as_ref(),
-                        cycle_count,
-                        proving_duration,
-                    )
-                    .await?;
-            }
+                for block_number in client_input.first().unwrap().current_block.number
+                    ..=client_input.last().unwrap().current_block.number
+                {
+                    hooks
+                        .on_proving_end(
+                            block_number,
+                            &proof_bytes,
+                            self.vk().as_ref(),
+                            cycle_count,
+                            proving_duration,
+                        )
+                        .await?;
+                }
 
-            info!("Proof successfully generated!");
+                info!("Proof successfully generated!");
         }
 
         Ok(())
@@ -203,14 +210,15 @@ where
         &self,
         block_number: u64,
         to_block: u64,
-        validator_sets: HashMap<String, String>,
+        state_proofs: Option<Vec<u8>>,
+        validator_sets: StdHashMap<String, String>,
     ) -> eyre::Result<()> {
         match self {
             Either::Left(ref executor) => {
-                executor.execute(block_number, to_block, validator_sets).await
+                executor.execute(block_number, to_block, state_proofs, validator_sets).await
             }
             Either::Right(ref executor) => {
-                executor.execute(block_number, to_block, validator_sets).await
+                executor.execute(block_number, to_block, state_proofs, validator_sets).await
             }
         }
     }
@@ -315,7 +323,8 @@ where
         &self,
         start_block: u64,
         to_block: u64,
-        validator_sets: HashMap<String, String>,
+        state_proofs: Option<Vec<u8>>,
+        validator_sets: StdHashMap<String, String>,
     ) -> eyre::Result<()> {
         let mut client_inputs = vec![];
         for block_number in start_block..=to_block {
@@ -377,7 +386,7 @@ where
             client_inputs.push(client_input);
         }
 
-        self.process_client(client_inputs, &self.hooks, validator_sets).await?;
+        self.process_client(client_inputs, &self.hooks, state_proofs, validator_sets).await?;
 
         Ok(())
     }
@@ -453,7 +462,8 @@ where
         &self,
         start_block: u64,
         to_block: u64,
-        validator_sets: HashMap<String, String>,
+        state_proofs: Option<Vec<u8>>,
+        validator_sets: StdHashMap<String, String>,
     ) -> eyre::Result<()> {
         let mut client_inputs = vec![];
         for block_number in start_block..=to_block {
@@ -466,7 +476,7 @@ where
             client_inputs.push(client_input);
         }
 
-        self.process_client(client_inputs, &self.hooks, validator_sets).await
+        self.process_client(client_inputs, &self.hooks, state_proofs, validator_sets).await
     }
 
     fn client(&self) -> Arc<C::Prover> {

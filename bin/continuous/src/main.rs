@@ -135,7 +135,7 @@ where
     executor.wait_for_block(number).await?;
 
     loop {
-        match executor.execute(number, number, HashMap::new()).await {
+        match executor.execute(number, number, None, HashMap::new()).await {
             // load validator set if necessary
             Ok(_) => {
                 return Ok(());

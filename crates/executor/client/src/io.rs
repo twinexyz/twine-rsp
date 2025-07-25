@@ -55,15 +55,16 @@ pub struct ClientExecutorInput<P: NodePrimitives> {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ClientInput<P: NodePrimitives> {
-    pub client_input: ClientExecutorInput<P>,
+    pub client_input: Vec<ClientExecutorInput<P>>,
+    pub state_proofs: Option<Vec<u8>>,
     pub validator_sets: StdHashMap<String, String>,
 }
 
 impl<P: NodePrimitives> ClientExecutorInput<P> {
     pub fn to_vec(&self) -> Vec<u8> {
-        let vec = serde_json::to_vec(self).unwrap();
-        vec
+        serde_json::to_vec(self).unwrap()
     }
 }
 
