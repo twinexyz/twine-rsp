@@ -68,6 +68,7 @@ reth-optimism-evm = { git = "https://github.com/paradigmxyz/reth", tag = "v1.7.0
 reth-optimism-primitives = { git = "https://github.com/paradigmxyz/reth", tag = "v1.7.0", default-features = false }
 reth-storage-errors = { git = "https://github.com/paradigmxyz/reth", tag = "v1.7.0", default-features = false }
 reth-trie = { git = "https://github.com/paradigmxyz/reth", tag = "v1.7.0", default-features = false }
+reth-trie-common = { git = "https://github.com/paradigmxyz/reth", tag = "v1.7.0", default-features = false }
 reth-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.7.0", default-features = false }
 reth-optimism-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.7.0", default-features = false }
 reth-execution-types = { git = "https://github.com/paradigmxyz/reth", tag = "v1.7.0", default-features = false }

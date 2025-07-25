@@ -7545,6 +7545,7 @@ dependencies = [
  "eyre",
  "madato",
  "reth-primitives-traits 1.7.0",
+ "reth-trie-common 1.7.0",
  "revm-bytecode 6.2.2",
  "rsp-client-executor",
  "rsp-host-executor",
