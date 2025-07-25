@@ -11,6 +11,7 @@ use serde_with::serde_as;
 use crate::error::ChainSpecError;
 
 pub const LINEA_GENESIS_JSON: &str = include_str!("../../../bin/host/genesis/59144.json");
+pub const TWINE_GENESIS_JSON: &str = include_str!("../../../bin/host/genesis/14523.json");
 pub const OP_SEPOLIA_GENESIS_JSON: &str = include_str!("../../../bin/host/genesis/11155420.json");
 
 #[serde_as]
@@ -20,6 +21,7 @@ pub enum Genesis {
     OpMainnet,
     Sepolia,
     Linea,
+    Twine,
     Custom(ChainConfig),
 }
 
@@ -30,6 +32,7 @@ impl Hash for Genesis {
             Genesis::OpMainnet => 10.hash(state),
             Genesis::Sepolia => 11155111.hash(state),
             Genesis::Linea => 59144.hash(state),
+            Genesis::Twine => 14523.hash(state),
             Self::Custom(config) => {
                 let buf = serde_json::to_vec(config).unwrap();
                 buf.hash(state);
@@ -61,6 +64,7 @@ impl TryFrom<u64> for Genesis {
             10 => Ok(Genesis::OpMainnet),
             59144 => Ok(Genesis::Linea),
             11155111 => Ok(Genesis::Sepolia),
+            14523 => Ok(Genesis::Twine),
             id => Err(ChainSpecError::ChainNotSupported(id)),
         }
     }
@@ -102,6 +106,7 @@ impl TryFrom<&Genesis> for ChainSpec {
             }
             Genesis::OpMainnet => Err(ChainSpecError::InvalidConversion),
             Genesis::Linea => Ok(ChainSpec::from_genesis(genesis_from_json(LINEA_GENESIS_JSON)?)),
+            Genesis::Twine => Ok(ChainSpec::from_genesis(genesis_from_json(TWINE_GENESIS_JSON)?)),
             Genesis::Custom(config) => Ok(ChainSpec::from_genesis(alloy_genesis::Genesis {
                 config: config.clone(),
                 ..Default::default()
@@ -119,7 +124,6 @@ impl TryFrom<&Genesis> for reth_optimism_chainspec::OpChainSpec {
             Genesis::OpMainnet => {
                 use reth_chainspec::Hardfork;
                 use reth_optimism_forks::OpHardfork;
-
                 let op_mainnet = reth_optimism_chainspec::OpChainSpec {
                     inner: ChainSpec {
                         chain: Chain::optimism_mainnet(),
