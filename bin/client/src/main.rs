@@ -46,7 +46,7 @@ pub fn main() {
     });
 
     let inputs = client_inputs.client_input;
-    let serialized_account_proofs = client_inputs.state_proofs;
+    let account_proofs = client_inputs.state_proofs;
     let validator_sets: HashMap<String, String> = client_inputs.validator_sets;
 
     let mut headers = vec![];
@@ -64,16 +64,15 @@ pub fn main() {
 
     let mut ethereum_executed_txns_count = 0;
     let mut solana_executed_txns_count = 0;
-    if let Some(hdr) = headers.last() {
-        let account_proofs: AccountProof =
-            serde_json::from_slice(&serialized_account_proofs.unwrap()).unwrap();
+    if let Some(account_proof) = account_proofs{
+        let hdr = headers.last().unwrap();
         let state_root = hdr.state_root;
-        account_proofs.verify(state_root).expect("Failed to verify proofs");
+        account_proof.verify(state_root).expect("Failed to verify proofs");
 
         // We verify proof of 2 storage slots
         // first slot: ethereum last message executed
         // second slot: solana last message executed
-        for (i, storage) in account_proofs.storage_proofs.iter().enumerate() {
+        for (i, storage) in account_proof.storage_proofs.iter().enumerate() {
             let val = storage.value.to::<u64>();
             match i {
                 0 => ethereum_executed_txns_count = val,

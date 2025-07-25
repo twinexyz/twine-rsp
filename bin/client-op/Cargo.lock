@@ -4047,6 +4047,7 @@ source = "git+https://github.com/paradigmxyz/reth?tag=v1.3.10#b36fc954d26258ac72
 dependencies = [
  "alloy-primitives",
  "bytes",
+ "reth-codecs",
  "reth-trie-common",
  "serde",
 ]
@@ -4153,6 +4154,7 @@ dependencies = [
  "itertools 0.14.0",
  "nybbles",
  "rayon",
+ "reth-codecs",
  "reth-primitives-traits",
  "revm-database",
  "serde",

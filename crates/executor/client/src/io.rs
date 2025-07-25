@@ -4,7 +4,7 @@ use itertools::Itertools;
 use reth_errors::ProviderError;
 use reth_ethereum_primitives::EthPrimitives;
 use reth_primitives_traits::{NodePrimitives, SealedHeader};
-use reth_trie::{TrieAccount, EMPTY_ROOT_HASH};
+use reth_trie::{AccountProof, TrieAccount, EMPTY_ROOT_HASH};
 use revm::{
     state::{AccountInfo, Bytecode},
     DatabaseRef,
@@ -57,7 +57,7 @@ pub struct ClientExecutorInput<P: NodePrimitives> {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ClientInput<P: NodePrimitives> {
     pub client_input: Vec<ClientExecutorInput<P>>,
-    pub state_proofs: Option<Vec<u8>>,
+    pub state_proofs: Option<AccountProof>,
     pub validator_sets: StdHashMap<String, String>,
 }
 

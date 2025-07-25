@@ -67,7 +67,7 @@ reth-evm-ethereum = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.1
 reth-optimism-evm = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false }
 reth-optimism-primitives = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false }
 reth-storage-errors = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false }
-reth-trie = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false }
+reth-trie = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false, features = ["serde"]}
 reth-trie-common = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false, features = ["eip1186", "serde"] }
 reth-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false }
 reth-optimism-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false }

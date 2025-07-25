@@ -5877,6 +5877,7 @@ source = "git+https://github.com/paradigmxyz/reth?tag=v1.3.10#b36fc954d26258ac72
 dependencies = [
  "alloy-primitives",
  "bytes",
+ "reth-codecs",
  "reth-trie-common",
  "serde",
 ]
