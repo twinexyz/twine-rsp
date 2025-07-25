@@ -15,7 +15,7 @@ use reth_optimism_primitives::OpPrimitives;
 use reth_primitives_traits::NodePrimitives;
 use rsp_client_executor::{custom::CustomEvmFactory, BlockValidator, IntoInput, IntoPrimitives};
 use rsp_primitives::genesis::Genesis;
-use serde::de::DeserializeOwned;
+use serde::{de::DeserializeOwned, Serialize};
 use sp1_prover::components::CpuProverComponents;
 use sp1_sdk::{
     CudaProver, EnvProver, Prover, SP1ProofMode, SP1ProofWithPublicValues, SP1ProvingKey, SP1Stdin,
@@ -29,6 +29,7 @@ pub trait ExecutorComponents {
     type Network: Network;
 
     type Primitives: NodePrimitives
+        + Serialize
         + DeserializeOwned
         + IntoPrimitives<Self::Network>
         + IntoInput
