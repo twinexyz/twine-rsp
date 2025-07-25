@@ -55,7 +55,6 @@ pub struct ClientExecutorInput<P: NodePrimitives> {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ClientInput<P: NodePrimitives> {
     pub client_input: Vec<ClientExecutorInput<P>>,
     pub state_proofs: Option<Vec<u8>>,
