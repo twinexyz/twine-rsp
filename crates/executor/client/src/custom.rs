@@ -23,6 +23,7 @@ use revm::{
     Context, Inspector, MainBuilder, MainContext,
 };
 use revm_primitives::{hardfork::SpecId, Address};
+use twine_l1_consensus_verifier_precompile::ConsensusVerifierPrecompile;
 use std::{collections::HashMap, fmt::Debug, marker::PhantomData};
 use twine_constants::precompiles::{
     TWINE_CONSENSUS_VERIFIER_PRECOMPILE_ADDRESS, TWINE_TRANSACTION_PRECOMPILE_ADDRESS,
@@ -30,6 +31,35 @@ use twine_constants::precompiles::{
 };
 use twine_l1_transactions_precompile::TransactionPrecompile;
 use twine_zstd_precompile::ZStdPrecompile;
+
+#[derive(Clone, Debug)]
+pub struct TwinePrecompiles {
+    pub transaction_precompile: Address,
+    pub consensus_precompile: Address,
+    pub zstd_precompile: Address,
+}
+
+impl TwinePrecompiles {
+    pub fn contains(&self, address: &Address) -> bool {
+        self.consensus_precompile.eq(address)
+            || self.transaction_precompile.eq(address)
+            || self.zstd_precompile.eq(address)
+    }
+
+    pub fn warm_addresses(&self) -> Vec<Address> {
+        vec![self.transaction_precompile, self.consensus_precompile, self.zstd_precompile]
+    }
+}
+
+impl Default for TwinePrecompiles {
+    fn default() -> Self {
+        Self {
+            transaction_precompile: TWINE_TRANSACTION_PRECOMPILE_ADDRESS,
+            consensus_precompile: TWINE_CONSENSUS_VERIFIER_PRECOMPILE_ADDRESS,
+            zstd_precompile: TWINE_ZSTD_PRECOMPILE_ADDRESS,
+        }
+    }
+}
 
 #[derive(Clone)]
 pub struct CustomPrecompiles {
@@ -91,43 +121,40 @@ impl<CTX: ContextTr> PrecompileProvider<CTX> for CustomPrecompiles {
         is_static: bool,
         gas_limit: u64,
     ) -> Result<Option<Self::Output>, String> {
-        if self.precompiles.contains(address) {
+        if self.precompiles.contains(address) || self.twine_precompiles.contains(address) {
             #[cfg(target_os = "zkvm")]
             let name = self.addresses_to_names.get(address).cloned().unwrap_or(address.to_string());
 
             #[cfg(target_os = "zkvm")]
             println!("cycle-tracker-report-start: precompile-{name}");
-            let result = self.precompiles.run(context, address, inputs, is_static, gas_limit);
+
+            let result;
+            if address.eq(&self.twine_precompiles.transaction_precompile) {
+                result = TransactionPrecompile::run(context, address, inputs, is_static, gas_limit);
+            } else if address.eq(&self.twine_precompiles.consensus_precompile) {
+                result = ConsensusVerifierPrecompile::run(context, address, inputs, is_static, gas_limit);
+            } else if address.eq(&self.twine_precompiles.zstd_precompile) {
+                println!("zstd precompile was triggered");
+                result = ZStdPrecompile::run(context, address, inputs, is_static, gas_limit);
+            } else {
+                result = self.precompiles.run(context, address, inputs, is_static, gas_limit);
+            }
+
             #[cfg(target_os = "zkvm")]
             println!("cycle-tracker-report-end: precompile-{name}");
 
             result
-        } else if self.twine_precompiles.contains(address) {
-            if address.eq(&self.twine_precompiles.consensus_precompile) {
-                use twine_l1_consensus_verifier_precompile::ConsensusVerifierPrecompile;
-
-                let consensus_verifier_precompile =
-                    ConsensusVerifierPrecompile::new(self.validator_sets.clone());
-                return consensus_verifier_precompile
-                    .run(context, address, inputs, is_static, gas_limit);
-            } else if address.eq(&self.twine_precompiles.transaction_precompile) {
-                return TransactionPrecompile::run(context, address, inputs, is_static, gas_limit);
-            } else if address.eq(&self.twine_precompiles.zstd_precompile) {
-                return ZStdPrecompile::run(context, address, inputs, is_static, gas_limit);
-            } else {
-                Ok(None)
-            }
         } else {
             Ok(None)
         }
     }
 
     fn warm_addresses(&self) -> Box<impl Iterator<Item = Address>> {
-        self.precompiles.warm_addresses()
+        Box::new(self.precompiles.warm_addresses().chain(self.twine_precompiles.warm_addresses()))
     }
 
     fn contains(&self, address: &Address) -> bool {
-        self.precompiles.contains(address)
+        self.precompiles.contains(address) || self.twine_precompiles.contains(address)
     }
 }
 
@@ -229,44 +256,5 @@ impl<CTX, INTR: InterpreterTypes> Inspector<CTX, INTR> for OpCodeTrackingInspect
 
         #[cfg(target_os = "zkvm")]
         println!("cycle-tracker-report-end: opcode-{}", self.current);
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct TwinePrecompiles {
-    pub transaction_precompile: Address,
-    pub consensus_precompile: Address,
-    pub zstd_precompile: Address,
-}
-
-impl TwinePrecompiles {
-    pub fn contains(&self, address: &Address) -> bool {
-        // TODO: extract into a feature
-        // #[cfg(feature = "twine-l1-consensus-verifier-precompile")]
-        if self.consensus_precompile.eq(address) {
-            return true;
-        }
-
-        // #[cfg(feature = "twine-l1-transactions-precompile")]
-        if self.transaction_precompile.eq(address) {
-            return true;
-        }
-
-        // #[cfg(feature = "twine-zstd-precompile")]
-        if self.zstd_precompile.eq(address) {
-            return true;
-        }
-
-        false
-    }
-}
-
-impl Default for TwinePrecompiles {
-    fn default() -> Self {
-        Self {
-            transaction_precompile: TWINE_TRANSACTION_PRECOMPILE_ADDRESS,
-            consensus_precompile: TWINE_CONSENSUS_VERIFIER_PRECOMPILE_ADDRESS,
-            zstd_precompile: TWINE_ZSTD_PRECOMPILE_ADDRESS,
-        }
     }
 }
