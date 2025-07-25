@@ -111,7 +111,7 @@ async fn main() -> eyre::Result<()> {
 
             let merkle_proofs = AccountProof::from_eip1186_proof(proof_response);
 
-            serialized_merkle_proofs = Some(serde_json::to_vec(&merkle_proofs)?);
+            serialized_merkle_proofs = Some(merkle_proofs);
         }
 
         let executor = build_executor::<EthExecutorComponents<_>, _>(

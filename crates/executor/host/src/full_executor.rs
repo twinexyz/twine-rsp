@@ -59,7 +59,7 @@ pub trait BlockExecutor<C: ExecutorComponents> {
         &self,
         block_number: u64,
         to_block: u64,
-        state_proofs: Option<Vec<u8>>,
+        state_proofs: Option<AccountProof>,
         validator_sets: StdHashMap<String, String>,
     ) -> eyre::Result<()>;
 
@@ -76,7 +76,7 @@ pub trait BlockExecutor<C: ExecutorComponents> {
         &self,
         client_input: Vec<ClientExecutorInput<C::Primitives>>,
         hooks: &C::Hooks,
-        state_proofs: Option<Vec<u8>>,
+        state_proofs: Option<AccountProof>,
         validator_sets: StdHashMap<String, String>,
     ) -> eyre::Result<()> {
         // Generate the proof.
@@ -206,7 +206,7 @@ where
         &self,
         block_number: u64,
         to_block: u64,
-        state_proofs: Option<Vec<u8>>,
+        state_proofs: Option<AccountProof>,
         validator_sets: StdHashMap<String, String>,
     ) -> eyre::Result<()> {
         match self {
@@ -319,7 +319,7 @@ where
         &self,
         start_block: u64,
         to_block: u64,
-        state_proofs: Option<Vec<u8>>,
+        state_proofs: Option<AccountProof>,
         validator_sets: StdHashMap<String, String>,
     ) -> eyre::Result<()> {
         let mut client_inputs = vec![];
@@ -455,7 +455,7 @@ where
         &self,
         start_block: u64,
         to_block: u64,
-        state_proofs: Option<Vec<u8>>,
+        state_proofs: Option<AccountProof>,
         validator_sets: StdHashMap<String, String>,
     ) -> eyre::Result<()> {
         let mut client_inputs = vec![];
