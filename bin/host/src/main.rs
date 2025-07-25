@@ -1,9 +1,13 @@
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
-use std::{collections::HashMap, env, fs, sync::Arc};
+use std::{collections::HashMap, env, sync::Arc};
 
+use alloy_primitives::keccak256;
+use alloy_primitives::U256;
+use alloy_provider::Provider;
 use clap::Parser;
 use execute::PersistExecutionReport;
+use reth_trie_common::AccountProof;
 use rsp_host_executor::{
     build_executor, create_eth_block_execution_strategy_factory,
     create_op_block_execution_strategy_factory, BlockExecutor, EthExecutorComponents,
@@ -19,7 +23,9 @@ mod execute;
 
 mod cli;
 use cli::HostArgs;
-use twine_constants::chains::RECOGNIZED_CHAINS;
+use twine_constants::precompiles::TWINE_SYSTEM_STORAGE_CONTRACT;
+// TODO: After consensus precompile is merged
+// use twine_constants::chains::RECOGNIZED_CHAINS;
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
@@ -72,17 +78,39 @@ async fn main() -> eyre::Result<()> {
         .await?;
 
         executor
-            .execute(block_number, args.to_block.unwrap_or(block_number), HashMap::new())
+            .execute(block_number, args.to_block.unwrap_or(block_number), None, HashMap::new())
             .await?; // TODO: load validator set here if necessary
     } else {
         let elf = include_elf!("rsp-client").to_vec();
-        let validator_sets = load_validator_sets();
+        // TODO: After consensus precompile is merged
+        // let validator_sets = load_validator_sets();
+        let validator_sets = HashMap::new();
         let block_execution_strategy_factory = create_eth_block_execution_strategy_factory(
             &config.genesis,
             config.custom_beneficiary,
             validator_sets.clone(),
         );
         let provider = config.rpc_url.as_ref().map(|url| create_provider(url.clone()));
+
+        let mut serialized_merkle_proofs = None;
+
+        if let Some(prov) = provider.clone() {
+            let solana_chain_id = 900;
+            let ethereum_chain_id = 17000;
+            let solana_slot = calculate_one_level_mapping_slot(U256::from(solana_chain_id));
+            let ethereum_slot = calculate_one_level_mapping_slot(U256::from(ethereum_chain_id));
+
+            let proof_response = prov
+                .get_proof(
+                    TWINE_SYSTEM_STORAGE_CONTRACT,
+                    vec![ethereum_slot.into(), solana_slot.into()],
+                )
+                .await?;
+
+            let merkle_proofs = AccountProof::from_eip1186_proof(proof_response);
+
+            serialized_merkle_proofs = Some(serde_json::to_vec(&merkle_proofs)?);
+        }
 
         let executor = build_executor::<EthExecutorComponents<_>, _>(
             elf,
@@ -95,28 +123,45 @@ async fn main() -> eyre::Result<()> {
         .await?;
 
         executor
-            .execute(block_number, args.to_block.unwrap_or(block_number), validator_sets.clone())
+            .execute(
+                block_number,
+                args.to_block.unwrap_or(block_number),
+                serialized_merkle_proofs,
+                validator_sets.clone(),
+            )
             .await?;
     }
 
     Ok(())
 }
 
-fn load_validator_sets() -> HashMap<String, String> {
-    let validator_set_base_path = env::var("L1_VALIDATOR_SET_PATH").expect("provide the base directory path that contains the validator set files for the chains you want to register in the precompiles");
-    let validator_set_files = fs::read_dir(validator_set_base_path).unwrap();
-    let mut validator_set_hashmap = HashMap::new();
-    () = validator_set_files
-        .into_iter()
-        .map(|file| {
-            let file = file.unwrap();
-            let file_name = file.file_name().to_str().unwrap().to_string();
-            let splitted_name: Vec<&str> = file_name.split(".").collect();
-            if RECOGNIZED_CHAINS.contains(&splitted_name[0]) {
-                let validator_set = fs::read_to_string(file.path()).unwrap();
-                validator_set_hashmap.insert(splitted_name[0].to_string(), validator_set);
-            }
-        })
-        .collect();
-    validator_set_hashmap
+// TODO: After consensus precompile is merged
+// fn load_validator_sets() -> HashMap<String, String> {
+//     let validator_set_base_path = env::var("L1_VALIDATOR_SET_PATH").expect("provide the base directory path that contains the validator set files for the chains you want to register in the precompiles");
+//     let validator_set_files = fs::read_dir(validator_set_base_path).unwrap();
+//     let mut validator_set_hashmap = HashMap::new();
+//     () = validator_set_files
+//         .into_iter()
+//         .map(|file| {
+//             let file = file.unwrap();
+//             let file_name = file.file_name().to_str().unwrap().to_string();
+//             let splitted_name: Vec<&str> = file_name.split(".").collect();
+//             if RECOGNIZED_CHAINS.contains(&splitted_name[0]) {
+//                 let validator_set = fs::read_to_string(file.path()).unwrap();
+//                 validator_set_hashmap.insert(splitted_name[0].to_string(), validator_set);
+//             }
+//         })
+//         .collect();
+//     validator_set_hashmap
+// }
+
+fn calculate_one_level_mapping_slot(inner_key: U256) -> U256 {
+    // l1MessageExecutedCount is at 2nd index
+    let mapping_slot = U256::from(2);
+
+    let mut encoded = vec![];
+    encoded.extend_from_slice(&inner_key.to_be_bytes_vec());
+    encoded.extend_from_slice(&mapping_slot.to_be_bytes_vec());
+
+    U256::from_be_slice(keccak256(&encoded).as_ref())
 }
