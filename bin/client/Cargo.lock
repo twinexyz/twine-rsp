@@ -1215,22 +1215,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bls12_381"
-version = "0.8.0"
-source = "git+https://github.com/sp1-patches/bls12_381?branch=patch-v0.8.0#7e1b79041253d6f7b591534613245b3f60e05d8b"
-dependencies = [
- "cfg-if",
- "digest 0.9.0",
- "ff",
- "group",
- "hex",
- "pairing",
- "rand_core 0.6.4",
- "sp1-lib 3.4.0",
- "subtle",
-]
-
-[[package]]
 name = "blst"
 version = "0.3.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2624,7 +2608,7 @@ dependencies = [
  "once_cell",
  "serdect",
  "sha2 0.10.8 (git+https://github.com/sp1-patches/RustCrypto-hashes?tag=patch-sha2-0.10.8-sp1-4.0.0)",
- "sp1-lib 5.0.0",
+ "sp1-lib",
 ]
 
 [[package]]
@@ -2656,7 +2640,7 @@ dependencies = [
  "hex",
  "serde_arrays",
  "sha2 0.10.8 (git+https://github.com/sp1-patches/RustCrypto-hashes?tag=patch-sha2-0.10.8-sp1-4.0.0)",
- "sp1_bls12_381",
+ "sp1_bls12_381 0.8.0-sp1-5.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "spin",
 ]
 
@@ -3067,7 +3051,7 @@ dependencies = [
  "hex",
  "primeorder",
  "sha2 0.10.8 (git+https://github.com/sp1-patches/RustCrypto-hashes?tag=patch-sha2-0.10.8-sp1-4.0.0)",
- "sp1-lib 5.0.0",
+ "sp1-lib",
 ]
 
 [[package]]
@@ -4764,16 +4748,6 @@ dependencies = [
 
 [[package]]
 name = "sp1-lib"
-version = "3.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a5729da1b05d56c01457e5ecabdc77f1cc941df23f2921163a2f325aec22428"
-dependencies = [
- "bincode",
- "serde",
-]
-
-[[package]]
-name = "sp1-lib"
 version = "5.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "03046db52868c1b60e8acffa0777ef6dc11ec1bbbb10b9eb612a871f69c8d3f6"
@@ -4816,7 +4790,7 @@ dependencies = [
  "libm",
  "rand 0.8.5",
  "sha2 0.10.8 (git+https://github.com/sp1-patches/RustCrypto-hashes?tag=patch-sha2-0.10.8-sp1-4.0.0)",
- "sp1-lib 5.0.0",
+ "sp1-lib",
  "sp1-primitives",
 ]
 
@@ -4831,7 +4805,23 @@ dependencies = [
  "group",
  "pairing",
  "rand_core 0.6.4",
- "sp1-lib 5.0.0",
+ "sp1-lib",
+ "subtle",
+]
+
+[[package]]
+name = "sp1_bls12_381"
+version = "0.8.0-sp1-5.0.0"
+source = "git+https://github.com/sp1-patches/bls12_381?branch=n%2Frelease-latest#16d4b12ceeb953d9fae9280fcd4309f128259476"
+dependencies = [
+ "cfg-if",
+ "digest 0.10.7",
+ "ff",
+ "group",
+ "hex",
+ "pairing",
+ "rand_core 0.6.4",
+ "sp1-lib",
  "subtle",
 ]
 
@@ -4920,7 +4910,7 @@ dependencies = [
  "num-bigint 0.4.6",
  "rand 0.8.5",
  "rustc-hex",
- "sp1-lib 5.0.0",
+ "sp1-lib",
 ]
 
 [[package]]
@@ -5352,7 +5342,7 @@ dependencies = [
 [[package]]
 name = "twine-constants"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fethereum-consensus-verifier#991b66aa02a889f9e84d57aa02a54fd42c79b8d2"
+source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fintegration-with-merkora#df82ec018e7c923b3ee6ac9c5f3f256dfdb5d7b5"
 dependencies = [
  "alloy-primitives",
 ]
@@ -5360,17 +5350,17 @@ dependencies = [
 [[package]]
 name = "twine-ethereum-consensus-prover-lib"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fethereum-consensus-verifier#991b66aa02a889f9e84d57aa02a54fd42c79b8d2"
+source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fintegration-with-merkora#df82ec018e7c923b3ee6ac9c5f3f256dfdb5d7b5"
 dependencies = [
  "alloy-primitives",
- "bls12_381",
  "ethereum_ssz",
  "ethereum_ssz_derive",
  "eyre",
  "hex",
  "serde",
  "serde_json",
- "sha2 0.9.9",
+ "sha2 0.10.8 (git+https://github.com/sp1-patches/RustCrypto-hashes?tag=patch-sha2-0.10.8-sp1-4.0.0)",
+ "sp1_bls12_381 0.8.0-sp1-5.0.0 (git+https://github.com/sp1-patches/bls12_381?branch=n%2Frelease-latest)",
  "ssz_types",
  "tree_hash",
  "tree_hash_derive",
@@ -5380,7 +5370,7 @@ dependencies = [
 [[package]]
 name = "twine-evm-contracts"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fethereum-consensus-verifier#991b66aa02a889f9e84d57aa02a54fd42c79b8d2"
+source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fintegration-with-merkora#df82ec018e7c923b3ee6ac9c5f3f256dfdb5d7b5"
 dependencies = [
  "alloy-contract",
  "alloy-sol-types",
@@ -5389,7 +5379,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-consensus-verifier-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fethereum-consensus-verifier#991b66aa02a889f9e84d57aa02a54fd42c79b8d2"
+source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fintegration-with-merkora#df82ec018e7c923b3ee6ac9c5f3f256dfdb5d7b5"
 dependencies = [
  "alloy-consensus",
  "alloy-primitives",
@@ -5405,12 +5395,14 @@ dependencies = [
  "twine-constants",
  "twine-ethereum-consensus-prover-lib",
  "twine-l1-utils",
+ "twine-solana-consensus-prover-lib",
+ "twine-solana-sdk",
 ]
 
 [[package]]
 name = "twine-l1-transactions-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fethereum-consensus-verifier#991b66aa02a889f9e84d57aa02a54fd42c79b8d2"
+source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fintegration-with-merkora#df82ec018e7c923b3ee6ac9c5f3f256dfdb5d7b5"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -5432,7 +5424,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-utils"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fethereum-consensus-verifier#991b66aa02a889f9e84d57aa02a54fd42c79b8d2"
+source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fintegration-with-merkora#df82ec018e7c923b3ee6ac9c5f3f256dfdb5d7b5"
 dependencies = [
  "reth-revm",
  "twine-constants",
@@ -5441,7 +5433,7 @@ dependencies = [
 [[package]]
 name = "twine-solana-consensus-prover-lib"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fethereum-consensus-verifier#991b66aa02a889f9e84d57aa02a54fd42c79b8d2"
+source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fintegration-with-merkora#df82ec018e7c923b3ee6ac9c5f3f256dfdb5d7b5"
 dependencies = [
  "bincode",
  "borsh 1.5.7",
@@ -5459,7 +5451,7 @@ dependencies = [
 [[package]]
 name = "twine-solana-sdk"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fethereum-consensus-verifier#991b66aa02a889f9e84d57aa02a54fd42c79b8d2"
+source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fintegration-with-merkora#df82ec018e7c923b3ee6ac9c5f3f256dfdb5d7b5"
 dependencies = [
  "bincode",
  "blake3 1.5.4",
@@ -5483,7 +5475,7 @@ dependencies = [
 [[package]]
 name = "twine-zstd-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fethereum-consensus-verifier#991b66aa02a889f9e84d57aa02a54fd42c79b8d2"
+source = "git+https://github.com/twinexyz/weaver.git?branch=feature%2Fparajuliswopnil%2Fintegration-with-merkora#df82ec018e7c923b3ee6ac9c5f3f256dfdb5d7b5"
 dependencies = [
  "alloy-primitives",
  "alloy-sol-types",
