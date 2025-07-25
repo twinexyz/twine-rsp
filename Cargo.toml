@@ -68,6 +68,7 @@ reth-optimism-evm = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.1
 reth-optimism-primitives = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false }
 reth-storage-errors = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false }
 reth-trie = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false }
+reth-trie-common = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false, features = ["eip1186", "serde"] }
 reth-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false }
 reth-optimism-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false }
 reth-execution-types = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false }
@@ -130,10 +131,10 @@ op-alloy-network = "0.13.0"
 op-alloy-rpc-types = "0.13.0"
 
 # weaver dependency 
-twine-l1-consensus-verifier-precompile ={ git = "https://github.com/twinexyz/weaver.git", branch = "feature/parajuliswopnil/integration-with-merkora" }
-twine-l1-transactions-precompile = { git = "https://github.com/twinexyz/weaver.git", branch = "feature/parajuliswopnil/integration-with-merkora" }
-twine-zstd-precompile = { git = "https://github.com/twinexyz/weaver.git", branch = "feature/parajuliswopnil/integration-with-merkora" } 
-twine-constants ={ git = "https://github.com/twinexyz/weaver.git", branch = "feature/parajuliswopnil/integration-with-merkora"  }
+twine-l1-consensus-verifier-precompile ={ git = "https://github.com/twinexyz/weaver.git", branch = "main" }
+twine-l1-transactions-precompile = { git = "https://github.com/twinexyz/weaver.git", branch = "main" }
+twine-zstd-precompile = { git = "https://github.com/twinexyz/weaver.git", branch = "main" } 
+twine-constants ={ git = "https://github.com/twinexyz/weaver.git", branch = "main"  }
 
 
 [workspace.lints]

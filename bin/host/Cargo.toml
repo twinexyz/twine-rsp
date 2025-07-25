@@ -30,6 +30,7 @@ alloy-provider.workspace = true
 
 
 # reth 
+reth-trie-common.workspace = true
 reth-primitives-traits.workspace = true
 
 # revm
