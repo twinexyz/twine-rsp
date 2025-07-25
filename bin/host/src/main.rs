@@ -99,12 +99,14 @@ async fn main() -> eyre::Result<()> {
             let ethereum_chain_id = 17000;
             let solana_slot = calculate_one_level_mapping_slot(U256::from(solana_chain_id));
             let ethereum_slot = calculate_one_level_mapping_slot(U256::from(ethereum_chain_id));
+            let at_block = args.to_block.unwrap_or(block_number);
 
             let proof_response = prov
                 .get_proof(
                     TWINE_SYSTEM_STORAGE_CONTRACT,
                     vec![ethereum_slot.into(), solana_slot.into()],
                 )
+                .block_id(at_block.into())
                 .await?;
 
             let merkle_proofs = AccountProof::from_eip1186_proof(proof_response);
