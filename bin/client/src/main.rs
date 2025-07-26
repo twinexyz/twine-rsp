@@ -2,40 +2,16 @@
 sp1_zkvm::entrypoint!(main);
 
 use reth_ethereum_primitives::EthPrimitives;
-use reth_trie_common::AccountProof;
-use revm_primitives::alloy_primitives::Keccak256;
-use revm_primitives::{keccak256, FixedBytes, B256};
 use rsp_client_executor::io::ClientInput;
 use rsp_client_executor::{
     executor::{EthClientExecutor, DESERIALZE_INPUTS},
     utils::profile_report,
-    BlockInfo, PublicCommitment,
+    PublicCommitment,
 };
+use twine_types::compute_batch_hash;
+use twine_utils::merkle_root;
 use std::collections::HashMap;
 use std::sync::Arc;
-
-/// Rough implementation of merkle root
-pub fn merkle_root(leaves: &[[u8; 32]]) -> B256 {
-    if leaves.is_empty() {
-        return B256::ZERO;
-    }
-    let mut current = leaves.to_vec();
-    while current.len() > 1 {
-        if current.len() % 2 == 1 {
-            current.push(current.last().copied().unwrap());
-        }
-        let mut next = Vec::with_capacity(current.len() / 2);
-        for pair in current.chunks_exact(2) {
-            let mut hasher = Keccak256::new();
-            hasher.update(&pair[0]);
-            hasher.update(&pair[1]);
-            let hash = hasher.finalize().0;
-            next.push(hash);
-        }
-        current = next;
-    }
-    B256::from(current[0])
-}
 
 pub fn main() {
     // Read the input.
@@ -46,10 +22,11 @@ pub fn main() {
     });
 
     let inputs = client_inputs.client_input;
-    let account_proofs = client_inputs.state_proofs;
+    let batch_metadata = client_inputs.batch_metadata;
     let validator_sets: HashMap<String, String> = client_inputs.validator_sets;
 
     let mut headers = vec![];
+    let mut prev_batch_hash = None;
 
     // Execute the block.
     for input in inputs {
@@ -64,10 +41,12 @@ pub fn main() {
 
     let mut ethereum_executed_txns_count = 0;
     let mut solana_executed_txns_count = 0;
-    if let Some(account_proof) = account_proofs{
+    if let Some(batch_meta) = batch_metadata{
+        let account_proof = batch_meta.state_proofs;
         let hdr = headers.last().unwrap();
         let state_root = hdr.state_root;
         account_proof.verify(state_root).expect("Failed to verify proofs");
+        prev_batch_hash = Some(batch_meta.prev_batch_hash.into());
 
         // We verify proof of 2 storage slots
         // first slot: ethereum last message executed
@@ -93,7 +72,8 @@ pub fn main() {
         })
         .collect();
 
-    let batch_hash = merkle_root(&pub_commitment_slice);
+    let state_merkle_root = merkle_root(&pub_commitment_slice);
+    let batch_hash = compute_batch_hash(state_merkle_root, prev_batch_hash);
 
     let public_commitment = PublicCommitment {
         from_block: headers.first().unwrap().number,
