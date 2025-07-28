@@ -40,7 +40,7 @@ pub fn main() {
         headers.push(header);
     }
 
-    let first_header = &headers[0];
+    let first_header = headers.first().unwrap();
     let last_header  = headers.last().unwrap();
 
     let (prev_batch_hash, eth_msgs, sol_msgs) = match batch_metadata {
