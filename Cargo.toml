@@ -134,7 +134,9 @@ op-alloy-rpc-types = "0.13.0"
 twine-l1-consensus-verifier-precompile ={ git = "https://github.com/twinexyz/weaver.git", branch = "main" }
 twine-l1-transactions-precompile = { git = "https://github.com/twinexyz/weaver.git", branch = "main" }
 twine-zstd-precompile = { git = "https://github.com/twinexyz/weaver.git", branch = "main" } 
-twine-constants ={ git = "https://github.com/twinexyz/weaver.git", branch = "main"  }
+twine-constants = { git = "https://github.com/twinexyz/weaver.git", branch = "main"  }
+twine-types = { git = "https://github.com/twinexyz/weaver.git", branch = "main"  }
+twine-rpc = { git = "https://github.com/twinexyz/weaver.git", branch = "main"  }
 
 
 [workspace.lints]

@@ -19,6 +19,8 @@ sp1-zkvm = "5.0.0"
 
 reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false, features = ["serde"] }
 reth-trie-common = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false, features = ["eip1186", "serde"] }
+twine-types = { git = "https://github.com/twinexyz/weaver.git", branch = "lilixac/generate-twine-batch"  }
+twine-utils = { git = "https://github.com/twinexyz/weaver.git", branch = "lilixac/generate-twine-batch"  }
 
 # Statically turns off logging
 log = { version = "0.4", features = ["max_level_off", "release_max_level_off"] }

@@ -7,7 +7,9 @@ use alloy_primitives::U256;
 use alloy_provider::Provider;
 use clap::Parser;
 use execute::PersistExecutionReport;
+use eyre::ensure;
 use reth_trie_common::AccountProof;
+use rsp_client_executor::io::BatchMetadata;
 use rsp_host_executor::{
     build_executor, create_eth_block_execution_strategy_factory,
     create_op_block_execution_strategy_factory, BlockExecutor, EthExecutorComponents,
@@ -19,11 +21,13 @@ use tracing_subscriber::{
     filter::EnvFilter, fmt, prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt,
 };
 
-mod execute;
-
+mod batch_client;
 mod cli;
+mod execute;
 use cli::HostArgs;
 use twine_constants::precompiles::TWINE_SYSTEM_STORAGE_CONTRACT;
+
+use crate::batch_client::BatchClient;
 // TODO: After consensus precompile is merged
 // use twine_constants::chains::RECOGNIZED_CHAINS;
 
@@ -92,28 +96,19 @@ async fn main() -> eyre::Result<()> {
         );
         let provider = config.rpc_url.as_ref().map(|url| create_provider(url.clone()));
 
-        let mut serialized_merkle_proofs = None;
-
-        if let Some(prov) = provider.clone() {
-            let solana_chain_id = 900;
-            let ethereum_chain_id = 17000;
-            let solana_slot = calculate_one_level_mapping_slot(U256::from(solana_chain_id));
-            let ethereum_slot = calculate_one_level_mapping_slot(U256::from(ethereum_chain_id));
-            let at_block = args.to_block.unwrap_or(block_number);
-
-            let proof_response = prov
-                .get_proof(
-                    TWINE_SYSTEM_STORAGE_CONTRACT,
-                    vec![ethereum_slot.into(), solana_slot.into()],
+        let batch_metadata = match provider {
+            Some(ref prov) => {
+                let to_block = args.to_block.unwrap_or(block_number);
+                build_batch_metadata(
+                    prov,
+                    config.rpc_url.as_ref().unwrap().as_str(),
+                    block_number,
+                    to_block,
                 )
-                .block_id(at_block.into())
-                .await?;
-
-            let merkle_proofs = AccountProof::from_eip1186_proof(proof_response);
-
-            serialized_merkle_proofs = Some(merkle_proofs);
-        }
-
+                .await?
+            }
+            None => None,
+        };
         let executor = build_executor::<EthExecutorComponents<_>, _>(
             elf,
             provider,
@@ -128,7 +123,7 @@ async fn main() -> eyre::Result<()> {
             .execute(
                 block_number,
                 args.to_block.unwrap_or(block_number),
-                serialized_merkle_proofs,
+                batch_metadata,
                 validator_sets.clone(),
             )
             .await?;
@@ -166,4 +161,38 @@ fn calculate_one_level_mapping_slot(inner_key: U256) -> U256 {
     encoded.extend_from_slice(&mapping_slot.to_be_bytes_vec());
 
     U256::from_be_slice(keccak256(&encoded).as_ref())
+}
+
+async fn build_batch_metadata(
+    provider: &alloy_provider::RootProvider,
+    rpc_url: &str,
+    from_block: u64,
+    to_block: u64,
+) -> eyre::Result<Option<BatchMetadata>> {
+    let batch_client = BatchClient::new(rpc_url);
+
+    // Ensure same batch
+    let from_batch = batch_client.get_batch_number_for_block(from_block).await?;
+    let to_batch = batch_client.get_batch_number_for_block(to_block).await?;
+    ensure!(from_batch == to_batch, "from/to blocks belong to different batches");
+
+    // Previous batch hash (0x00…00 for genesis)
+    let prev_batch_hash = if from_batch == 0 {
+        [0u8; 32]
+    } else {
+        batch_client.get_batch_hash(from_batch - 1).await?
+    };
+
+    // Storage proofs
+    let ethereum_slot = calculate_one_level_mapping_slot(U256::from(17000));
+    let solana_slot = calculate_one_level_mapping_slot(U256::from(900));
+
+    let proof = provider
+        .get_proof(TWINE_SYSTEM_STORAGE_CONTRACT, vec![ethereum_slot.into(), solana_slot.into()])
+        .block_id(to_block.into())
+        .await?;
+
+    let state_proofs = AccountProof::from_eip1186_proof(proof);
+
+    Ok(Some(BatchMetadata { prev_batch_hash, state_proofs }))
 }

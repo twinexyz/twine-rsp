@@ -19,6 +19,7 @@ use serde::{Deserialize, Serialize};
 pub struct PublicCommitment {
     pub from_block: u64,
     pub to_block: u64,
+    pub prev_batch_hash: FixedBytes<32>,
     pub batch_hash: FixedBytes<32>,
     pub ethereum_message_count: u64,
     pub solana_message_count: u64,
@@ -43,6 +44,7 @@ sol! {
     struct SolPublicCommitment {
         uint64 from_block;
         uint64 to_block;
+        bytes32 prev_batch_hash;
         bytes32 batch_hash;
         uint64 ethereum_message_count;
         uint64 solana_message_count;
@@ -73,24 +75,42 @@ impl PublicCommitment {
         sol_pub_commitment.abi_encode_packed()
     }
 
-    pub fn abi_decode_packed(public_commitment: Vec<u8>) -> Result<Self, String> {
-        if public_commitment.len() != 64 {
-            return Err("invalid length".to_string());
+    pub fn abi_decode_packed(bytes: Vec<u8>) -> Result<Self, String> {
+        const LEN: usize = 8 + 8 + 32 + 32 + 8 + 8; // 96 bytes
+        if bytes.len() != LEN {
+            return Err(format!("expected {} bytes, got {}", LEN, bytes.len()));
         }
-        let from_block_byte: [u8; 8] = public_commitment[0..8].try_into().unwrap_or([0u8; 8]);
-        let from_block = u64::from_be_bytes(from_block_byte);
-
-        let to_block_byte: [u8; 8] = public_commitment[8..16].try_into().unwrap_or([0u8; 8]);
-        let to_block = u64::from_be_bytes(to_block_byte);
-
-        let batch_hash = FixedBytes::<32>::from_slice(&public_commitment[16..48]);
-
-        let ethereum_message_count =
-            u64::from_be_bytes(public_commitment[48..56].try_into().unwrap_or_default());
-        let solana_message_count =
-            u64::from_be_bytes(public_commitment[56..64].try_into().unwrap_or_default());
-
-        Ok(Self { from_block, to_block, batch_hash, ethereum_message_count, solana_message_count })
+    
+        let mut idx = 0;
+    
+        let from_block = u64::from_be_bytes(bytes[idx..idx + 8].try_into().unwrap());
+        idx += 8;
+    
+        let to_block = u64::from_be_bytes(bytes[idx..idx + 8].try_into().unwrap());
+        idx += 8;
+    
+        let prev_batch_hash = FixedBytes::<32>::from_slice(&bytes[idx..idx + 32]);
+        idx += 32;
+    
+        let batch_hash = FixedBytes::<32>::from_slice(&bytes[idx..idx + 32]);
+        idx += 32;
+    
+        let ethereum_message_count = u64::from_be_bytes(bytes[idx..idx + 8].try_into().unwrap());
+        idx += 8;
+    
+        let solana_message_count = u64::from_be_bytes(bytes[idx..idx + 8].try_into().unwrap());
+        idx += 8;
+    
+        debug_assert_eq!(idx, LEN);
+    
+        Ok(Self {
+            from_block,
+            to_block,
+            prev_batch_hash,
+            batch_hash,
+            ethereum_message_count,
+            solana_message_count,
+        })
     }
 }
 
@@ -99,6 +119,7 @@ impl From<PublicCommitment> for SolPublicCommitment {
         Self {
             from_block: value.from_block,
             to_block: value.to_block,
+            prev_batch_hash: value.prev_batch_hash,
             batch_hash: value.batch_hash,
             ethereum_message_count: value.ethereum_message_count,
             solana_message_count: value.solana_message_count,

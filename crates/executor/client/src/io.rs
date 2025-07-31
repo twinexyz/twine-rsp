@@ -57,8 +57,14 @@ pub struct ClientExecutorInput<P: NodePrimitives> {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ClientInput<P: NodePrimitives> {
     pub client_input: Vec<ClientExecutorInput<P>>,
-    pub state_proofs: Option<AccountProof>,
+    pub batch_metadata: Option<BatchMetadata>,
     pub validator_sets: StdHashMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct BatchMetadata {
+    pub prev_batch_hash: [u8; 32],
+    pub state_proofs: AccountProof,
 }
 
 impl<P: NodePrimitives> ClientExecutorInput<P> {
@@ -148,7 +154,7 @@ impl DatabaseRef for TrieDB<'_> {
         let hashed_address = keccak256(address);
         let hashed_address = hashed_address.as_slice();
 
-        let account_in_trie = self.inner.state_trie.get_rlp::<TrieAccount>(hashed_address).unwrap();
+        let account_in_trie: Option<TrieAccount> = self.inner.state_trie.get_rlp::<TrieAccount>(hashed_address).unwrap();
 
         let account = account_in_trie.map(|account_in_trie| AccountInfo {
             balance: account_in_trie.balance,
