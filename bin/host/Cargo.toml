@@ -9,6 +9,7 @@ url.workspace = true
 tracing-subscriber = "0.3.18"
 dotenv = "0.15.0"
 clap = { version = "4.5.7", features = ["derive", "env"] }
+jsonrpsee = { version = "0.24", features = ["jsonrpsee-proc-macros", "tracing", "client"] }
 eyre = "0.6.12"
 serde.workspace = true
 serde_json.workspace = true
@@ -42,6 +43,8 @@ sp1-core-executor.workspace = true
 
 # weaver dependency 
 twine-constants.workspace = true 
+twine-types.workspace = true
+twine-rpc.workspace = true
 
 [dev-dependencies]
 alloy-network.workspace = true

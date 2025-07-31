@@ -59,7 +59,7 @@ pub trait BlockExecutor<C: ExecutorComponents> {
         &self,
         block_number: u64,
         to_block: u64,
-        state_proofs: Option<AccountProof>,
+        batch_metadata: Option<BatchMetadata>,
         validator_sets: StdHashMap<String, String>,
     ) -> eyre::Result<()>;
 
@@ -76,13 +76,13 @@ pub trait BlockExecutor<C: ExecutorComponents> {
         &self,
         client_input: Vec<ClientExecutorInput<C::Primitives>>,
         hooks: &C::Hooks,
-        state_proofs: Option<AccountProof>,
+        batch_metadata: Option<BatchMetadata>,
         validator_sets: StdHashMap<String, String>,
     ) -> eyre::Result<()> {
         // Generate the proof.
         // Execute the block inside the zkVM.
 
-        let zk_client_input = ClientInput { client_input: client_input.clone(), state_proofs, validator_sets };
+        let zk_client_input = ClientInput { client_input: client_input.clone(), batch_metadata, validator_sets };
 
         let mut stdin = SP1Stdin::new();
         let buffer = serde_json::to_vec(&zk_client_input).unwrap();
@@ -206,15 +206,15 @@ where
         &self,
         block_number: u64,
         to_block: u64,
-        state_proofs: Option<AccountProof>,
+        batch_metadata: Option<BatchMetadata>,
         validator_sets: StdHashMap<String, String>,
     ) -> eyre::Result<()> {
         match self {
             Either::Left(ref executor) => {
-                executor.execute(block_number, to_block, state_proofs, validator_sets).await
+                executor.execute(block_number, to_block, batch_metadata, validator_sets).await
             }
             Either::Right(ref executor) => {
-                executor.execute(block_number, to_block, state_proofs, validator_sets).await
+                executor.execute(block_number, to_block, batch_metadata, validator_sets).await
             }
         }
     }
@@ -319,7 +319,7 @@ where
         &self,
         start_block: u64,
         to_block: u64,
-        state_proofs: Option<AccountProof>,
+        batch_metadata: Option<BatchMetadata>,
         validator_sets: StdHashMap<String, String>,
     ) -> eyre::Result<()> {
         let mut client_inputs = vec![];
@@ -379,7 +379,7 @@ where
             client_inputs.push(client_input);
         }
 
-        self.process_client(client_inputs, &self.hooks, state_proofs, validator_sets).await?;
+        self.process_client(client_inputs, &self.hooks, batch_metadata, validator_sets).await?;
 
         Ok(())
     }
@@ -455,7 +455,7 @@ where
         &self,
         start_block: u64,
         to_block: u64,
-        state_proofs: Option<AccountProof>,
+        batch_metadata: Option<BatchMetadata>,
         validator_sets: StdHashMap<String, String>,
     ) -> eyre::Result<()> {
         let mut client_inputs = vec![];
@@ -469,7 +469,7 @@ where
             client_inputs.push(client_input);
         }
 
-        self.process_client(client_inputs, &self.hooks, state_proofs, validator_sets).await
+        self.process_client(client_inputs, &self.hooks, batch_metadata, validator_sets).await
     }
 
     fn client(&self) -> Arc<C::Prover> {

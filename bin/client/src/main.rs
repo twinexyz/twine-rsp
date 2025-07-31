@@ -2,40 +2,16 @@
 sp1_zkvm::entrypoint!(main);
 
 use reth_ethereum_primitives::EthPrimitives;
-use reth_trie_common::AccountProof;
-use revm_primitives::alloy_primitives::Keccak256;
-use revm_primitives::{keccak256, FixedBytes, B256};
+use revm_primitives::FixedBytes;
 use rsp_client_executor::io::ClientInput;
 use rsp_client_executor::{
     executor::{EthClientExecutor, DESERIALZE_INPUTS},
     utils::profile_report,
-    BlockInfo, PublicCommitment,
+    PublicCommitment,
 };
-use std::collections::HashMap;
+use twine_types::compute_batch_hash;
+use twine_utils::merkle_root;
 use std::sync::Arc;
-
-/// Rough implementation of merkle root
-pub fn merkle_root(leaves: &[[u8; 32]]) -> B256 {
-    if leaves.is_empty() {
-        return B256::ZERO;
-    }
-    let mut current = leaves.to_vec();
-    while current.len() > 1 {
-        if current.len() % 2 == 1 {
-            current.push(current.last().copied().unwrap());
-        }
-        let mut next = Vec::with_capacity(current.len() / 2);
-        for pair in current.chunks_exact(2) {
-            let mut hasher = Keccak256::new();
-            hasher.update(&pair[0]);
-            hasher.update(&pair[1]);
-            let hash = hasher.finalize().0;
-            next.push(hash);
-        }
-        current = next;
-    }
-    B256::from(current[0])
-}
 
 pub fn main() {
     // Read the input.
@@ -45,11 +21,13 @@ pub fn main() {
         serde_json::from_slice::<ClientInput<EthPrimitives>>(&input).unwrap()
     });
 
-    let inputs = client_inputs.client_input;
-    let account_proofs = client_inputs.state_proofs;
-    let validator_sets: HashMap<String, String> = client_inputs.validator_sets;
+    let ClientInput {
+        client_input: inputs,
+        batch_metadata,
+        validator_sets,
+    } = client_inputs;
 
-    let mut headers = vec![];
+    let mut headers = Vec::with_capacity(inputs.len());
 
     // Execute the block.
     for input in inputs {
@@ -62,45 +40,45 @@ pub fn main() {
         headers.push(header);
     }
 
-    let mut ethereum_executed_txns_count = 0;
-    let mut solana_executed_txns_count = 0;
-    if let Some(account_proof) = account_proofs{
-        let hdr = headers.last().unwrap();
-        let state_root = hdr.state_root;
-        account_proof.verify(state_root).expect("Failed to verify proofs");
+    let first_header = headers.first().unwrap();
+    let last_header  = headers.last().unwrap();
 
-        // We verify proof of 2 storage slots
-        // first slot: ethereum last message executed
-        // second slot: solana last message executed
-        for (i, storage) in account_proof.storage_proofs.iter().enumerate() {
-            let val = storage.value.to::<u64>();
-            match i {
-                0 => ethereum_executed_txns_count = val,
-                1 => solana_executed_txns_count = val,
-                _ => {}
+    let (prev_batch_hash, eth_msgs, sol_msgs) = match batch_metadata {
+        Some(meta) => {
+            // Verify account & storage proofs against latest state root
+            meta.state_proofs.verify(last_header.state_root).expect("Failed to verify proofs");
+
+            let mut eth_msgs = 0;
+            let mut sol_msgs = 0;
+
+            for (idx, storage) in meta.state_proofs.storage_proofs.iter().enumerate() {
+                match idx {
+                    0 => eth_msgs = storage.value.to::<u64>(),
+                    1 => sol_msgs = storage.value.to::<u64>(),
+                    _ => {}
+                }
             }
+
+            (FixedBytes::from(meta.prev_batch_hash), eth_msgs, sol_msgs)
         }
-    }
+        None => (FixedBytes::ZERO, 0, 0), 
+    };
 
-    let mut pub_commitment_slice: Vec<[u8; 32]> = Vec::new();
-
-    () = headers
-        .clone()
+    let state_roots: Vec<[u8; 32]> = headers
         .iter()
-        .map(|header| {
-            let state_root = header.state_root.0;
-            pub_commitment_slice.push(state_root);
-        })
+        .map(|h| h.state_root.0)
         .collect();
 
-    let batch_hash = merkle_root(&pub_commitment_slice);
+    let state_merkle_root = merkle_root(&state_roots);
+    let batch_hash = compute_batch_hash(state_merkle_root, prev_batch_hash.into());
 
     let public_commitment = PublicCommitment {
-        from_block: headers.first().unwrap().number,
-        to_block: headers.last().unwrap().number,
+        from_block: first_header.number,
+        to_block:   last_header.number,
+        prev_batch_hash,
         batch_hash,
-        ethereum_message_count: ethereum_executed_txns_count,
-        solana_message_count: solana_executed_txns_count,
+        ethereum_message_count: eth_msgs,
+        solana_message_count:   sol_msgs,
     };
 
     // Commit the block header.
