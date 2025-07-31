@@ -9109,7 +9109,7 @@ dependencies = [
 [[package]]
 name = "twine-constants"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=lilixac%2Fgenerate-twine-batch#7834d051a5e8873415874784f090655609d6e1c0"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#035c2f1a79f53488ee9fd90797c074cd4b1e198d"
 dependencies = [
  "alloy-primitives",
 ]
@@ -9117,7 +9117,7 @@ dependencies = [
 [[package]]
 name = "twine-db-batch"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=lilixac%2Fgenerate-twine-batch#7834d051a5e8873415874784f090655609d6e1c0"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#035c2f1a79f53488ee9fd90797c074cd4b1e198d"
 dependencies = [
  "alloy-primitives",
  "bincode",
@@ -9131,7 +9131,7 @@ dependencies = [
 [[package]]
 name = "twine-evm-contracts"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=lilixac%2Fgenerate-twine-batch#7834d051a5e8873415874784f090655609d6e1c0"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#035c2f1a79f53488ee9fd90797c074cd4b1e198d"
 dependencies = [
  "alloy-contract",
  "alloy-sol-types",
@@ -9140,7 +9140,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-consensus-verifier-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=lilixac%2Fgenerate-twine-batch#7834d051a5e8873415874784f090655609d6e1c0"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#035c2f1a79f53488ee9fd90797c074cd4b1e198d"
 dependencies = [
  "alloy-primitives",
  "reth-revm",
@@ -9151,7 +9151,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-transactions-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=lilixac%2Fgenerate-twine-batch#7834d051a5e8873415874784f090655609d6e1c0"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#035c2f1a79f53488ee9fd90797c074cd4b1e198d"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -9173,7 +9173,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-utils"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=lilixac%2Fgenerate-twine-batch#7834d051a5e8873415874784f090655609d6e1c0"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#035c2f1a79f53488ee9fd90797c074cd4b1e198d"
 dependencies = [
  "reth-revm",
  "twine-constants",
@@ -9182,7 +9182,7 @@ dependencies = [
 [[package]]
 name = "twine-rpc"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=lilixac%2Fgenerate-twine-batch#7834d051a5e8873415874784f090655609d6e1c0"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#035c2f1a79f53488ee9fd90797c074cd4b1e198d"
 dependencies = [
  "eyre",
  "jsonrpsee",
@@ -9193,7 +9193,7 @@ dependencies = [
 [[package]]
 name = "twine-solana-consensus-prover-lib"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=lilixac%2Fgenerate-twine-batch#7834d051a5e8873415874784f090655609d6e1c0"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#035c2f1a79f53488ee9fd90797c074cd4b1e198d"
 dependencies = [
  "bincode",
  "borsh 1.5.7",
@@ -9211,7 +9211,7 @@ dependencies = [
 [[package]]
 name = "twine-solana-sdk"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=lilixac%2Fgenerate-twine-batch#7834d051a5e8873415874784f090655609d6e1c0"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#035c2f1a79f53488ee9fd90797c074cd4b1e198d"
 dependencies = [
  "bincode",
  "blake3 1.5.4",
@@ -9235,7 +9235,7 @@ dependencies = [
 [[package]]
 name = "twine-types"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=lilixac%2Fgenerate-twine-batch#7834d051a5e8873415874784f090655609d6e1c0"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#035c2f1a79f53488ee9fd90797c074cd4b1e198d"
 dependencies = [
  "alloy-primitives",
  "serde",
@@ -9245,15 +9245,16 @@ dependencies = [
 [[package]]
 name = "twine-utils"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=lilixac%2Fgenerate-twine-batch#7834d051a5e8873415874784f090655609d6e1c0"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#035c2f1a79f53488ee9fd90797c074cd4b1e198d"
 dependencies = [
  "alloy-primitives",
+ "serde",
 ]
 
 [[package]]
 name = "twine-zstd-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=lilixac%2Fgenerate-twine-batch#7834d051a5e8873415874784f090655609d6e1c0"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#035c2f1a79f53488ee9fd90797c074cd4b1e198d"
 dependencies = [
  "alloy-primitives",
  "alloy-sol-types",

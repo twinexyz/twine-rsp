@@ -131,12 +131,12 @@ op-alloy-network = "0.13.0"
 op-alloy-rpc-types = "0.13.0"
 
 # weaver dependency 
-twine-l1-consensus-verifier-precompile ={ git = "https://github.com/twinexyz/weaver.git", branch = "lilixac/generate-twine-batch" }
-twine-l1-transactions-precompile = { git = "https://github.com/twinexyz/weaver.git", branch = "lilixac/generate-twine-batch" }
-twine-zstd-precompile = { git = "https://github.com/twinexyz/weaver.git", branch = "lilixac/generate-twine-batch" } 
-twine-constants = { git = "https://github.com/twinexyz/weaver.git", branch = "lilixac/generate-twine-batch"  }
-twine-types = { git = "https://github.com/twinexyz/weaver.git", branch = "lilixac/generate-twine-batch"  }
-twine-rpc = { git = "https://github.com/twinexyz/weaver.git", branch = "lilixac/generate-twine-batch"  }
+twine-l1-consensus-verifier-precompile ={ git = "https://github.com/twinexyz/weaver.git", branch = "main" }
+twine-l1-transactions-precompile = { git = "https://github.com/twinexyz/weaver.git", branch = "main" }
+twine-zstd-precompile = { git = "https://github.com/twinexyz/weaver.git", branch = "main" } 
+twine-constants = { git = "https://github.com/twinexyz/weaver.git", branch = "main"  }
+twine-types = { git = "https://github.com/twinexyz/weaver.git", branch = "main"  }
+twine-rpc = { git = "https://github.com/twinexyz/weaver.git", branch = "main"  }
 
 
 [workspace.lints]
