@@ -176,9 +176,9 @@ async fn build_batch_metadata(
     let to_batch = batch_client.get_batch_number_for_block(to_block).await?;
     ensure!(from_batch == to_batch, "from/to blocks belong to different batches");
 
-    // Previous batch hash (0x00…00 for genesis)
-    let prev_batch_hash = if from_batch == 0 {
-        [0u8; 32]
+    // Previous batch hash (hash of 0x00…00 for genesis)
+    let prev_batch_hash = if from_batch == 1 {
+        KECCAK256_EMPTY
     } else {
         batch_client.get_batch_hash(from_batch - 1).await?
     };
