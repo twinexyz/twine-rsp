@@ -73,8 +73,6 @@ pub fn main() {
     let batch_hash = compute_batch_hash(state_merkle_root, prev_batch_hash.into());
 
     let public_commitment = PublicCommitment {
-        from_block: first_header.number,
-        to_block:   last_header.number,
         prev_batch_hash,
         batch_hash,
         ethereum_message_count: eth_msgs,

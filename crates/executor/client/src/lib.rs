@@ -17,8 +17,6 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PublicCommitment {
-    pub from_block: u64,
-    pub to_block: u64,
     pub prev_batch_hash: FixedBytes<32>,
     pub batch_hash: FixedBytes<32>,
     pub ethereum_message_count: u64,
@@ -42,8 +40,6 @@ sol! {
     }
 
     struct SolPublicCommitment {
-        uint64 from_block;
-        uint64 to_block;
         bytes32 prev_batch_hash;
         bytes32 batch_hash;
         uint64 ethereum_message_count;
@@ -76,18 +72,12 @@ impl PublicCommitment {
     }
 
     pub fn abi_decode_packed(bytes: Vec<u8>) -> Result<Self, String> {
-        const LEN: usize = 8 + 8 + 32 + 32 + 8 + 8; // 96 bytes
+        const LEN: usize = 32 + 32 + 8 + 8; // 80 bytes
         if bytes.len() != LEN {
             return Err(format!("expected {} bytes, got {}", LEN, bytes.len()));
         }
     
         let mut idx = 0;
-    
-        let from_block = u64::from_be_bytes(bytes[idx..idx + 8].try_into().unwrap());
-        idx += 8;
-    
-        let to_block = u64::from_be_bytes(bytes[idx..idx + 8].try_into().unwrap());
-        idx += 8;
     
         let prev_batch_hash = FixedBytes::<32>::from_slice(&bytes[idx..idx + 32]);
         idx += 32;
@@ -104,8 +94,6 @@ impl PublicCommitment {
         debug_assert_eq!(idx, LEN);
     
         Ok(Self {
-            from_block,
-            to_block,
             prev_batch_hash,
             batch_hash,
             ethereum_message_count,
@@ -117,8 +105,6 @@ impl PublicCommitment {
 impl From<PublicCommitment> for SolPublicCommitment {
     fn from(value: PublicCommitment) -> Self {
         Self {
-            from_block: value.from_block,
-            to_block: value.to_block,
             prev_batch_hash: value.prev_batch_hash,
             batch_hash: value.batch_hash,
             ethereum_message_count: value.ethereum_message_count,
