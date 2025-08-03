@@ -6,6 +6,7 @@ use alloy_primitives::keccak256;
 use alloy_primitives::U256;
 use alloy_provider::Provider;
 use clap::Parser;
+use alloy_primitives::KECCAK256_EMPTY;
 use execute::PersistExecutionReport;
 use eyre::ensure;
 use reth_trie_common::AccountProof;
@@ -21,13 +22,12 @@ use tracing_subscriber::{
     filter::EnvFilter, fmt, prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt,
 };
 
-mod batch_client;
 mod cli;
 mod execute;
 use cli::HostArgs;
 use twine_constants::precompiles::TWINE_SYSTEM_STORAGE_CONTRACT;
+use twine_rpc::client::BatchClient;
 
-use crate::batch_client::BatchClient;
 // TODO: After consensus precompile is merged
 // use twine_constants::chains::RECOGNIZED_CHAINS;
 
@@ -178,7 +178,7 @@ async fn build_batch_metadata(
 
     // Previous batch hash (hash of 0x00…00 for genesis)
     let prev_batch_hash = if from_batch == 1 {
-        KECCAK256_EMPTY
+        KECCAK256_EMPTY.0
     } else {
         batch_client.get_batch_hash(from_batch - 1).await?
     };

@@ -11,6 +11,7 @@ use alloy_provider::Provider;
 use either::Either;
 use eyre::bail;
 use reth_primitives_traits::NodePrimitives;
+use revm_primitives::Bytes;
 use rsp_client_executor::{
     io::{BatchMetadata, ClientExecutorInput, ClientInput},
     PublicCommitment,
@@ -19,7 +20,7 @@ use rsp_rpc_db::RpcDb;
 use serde::de::DeserializeOwned;
 use sp1_prover::components::CpuProverComponents;
 use sp1_sdk::{ExecutionReport, Prover, SP1ProvingKey, SP1PublicValues, SP1Stdin, SP1VerifyingKey};
-use std::{collections::HashMap as StdHashMap};
+use std::collections::HashMap as StdHashMap;
 use tokio::{task, time::sleep};
 use tracing::{info, info_span, warn};
 
@@ -86,7 +87,8 @@ pub trait BlockExecutor<C: ExecutorComponents> {
         // Generate the proof.
         // Execute the block inside the zkVM.
 
-        let zk_client_input = ClientInput { client_input: client_input.clone(), batch_metadata, validator_sets };
+        let zk_client_input =
+            ClientInput { client_input: client_input.clone(), batch_metadata, validator_sets };
 
         let mut stdin = SP1Stdin::new();
         let buffer = serde_json::to_vec(&zk_client_input).unwrap();
@@ -104,11 +106,21 @@ pub trait BlockExecutor<C: ExecutorComponents> {
 
             let (public_values, _) = execute_result?;
 
+            let serialized_values = public_values.to_vec();
+
             let public_commitment =
-                PublicCommitment::abi_decode_packed(public_values.as_slice().to_vec())
+                PublicCommitment::abi_decode_packed(serialized_values.clone())
                     .map_err(|e| eyre::eyre!(e))?;
 
             println!("Public Commitment: {:#?}", public_commitment);
+
+            let public_bytes: Bytes = serialized_values.into();
+
+            let start_block = client_input.first().unwrap().current_block.number;
+            let end_block = client_input.last().unwrap().current_block.number;
+
+            save_proof_to_file(public_bytes.to_string(), start_block, end_block);
+
 
             // _ = public_commitment;
             // Read the block header.
@@ -139,49 +151,49 @@ pub trait BlockExecutor<C: ExecutorComponents> {
         if let Some(prove_mode) = self.config().prove_mode {
             info!("Starting proof generation");
 
-                let proving_start = Instant::now();
-                for block_number in client_input.clone().first().unwrap().current_block.number
-                    ..=client_input.last().unwrap().current_block.number
-                {
-                    hooks.on_proving_start(block_number).await?;
-                }
+            let proving_start = Instant::now();
+            for block_number in client_input.clone().first().unwrap().current_block.number
+                ..=client_input.last().unwrap().current_block.number
+            {
+                hooks.on_proving_start(block_number).await?;
+            }
 
-                let client = self.client();
-                let pk = self.pk();
+            let client = self.client();
+            let pk = self.pk();
 
-                let (proof, cycle_count) = task::spawn_blocking(move || {
-                    client
-                        .prove_with_cycles(pk.as_ref(), &stdin, prove_mode)
-                        .map_err(|err| eyre::eyre!("{err}"))
-                })
-                .await
-                .map_err(|err| eyre::eyre!("{err}"))??;
+            let (proof, cycle_count) = task::spawn_blocking(move || {
+                client
+                    .prove_with_cycles(pk.as_ref(), &stdin, prove_mode)
+                    .map_err(|err| eyre::eyre!("{err}"))
+            })
+            .await
+            .map_err(|err| eyre::eyre!("{err}"))??;
 
-                let proving_duration = proving_start.elapsed();
-                let proof_bytes = bincode::serialize(&proof.proof).unwrap();
-                let proof = serde_json::to_string(&proof).expect("could not serialize proof to string");
+            let proving_duration = proving_start.elapsed();
+            let proof_bytes = bincode::serialize(&proof.proof).unwrap();
+            let proof = serde_json::to_string(&proof).expect("could not serialize proof to string");
 
-                save_proof_to_file(
-                    proof,
-                    client_input.first().unwrap().current_block.number,
-                    client_input.last().unwrap().current_block.number,
-                );
+            save_proof_to_file(
+                proof,
+                client_input.first().unwrap().current_block.number,
+                client_input.last().unwrap().current_block.number,
+            );
 
-                for block_number in client_input.first().unwrap().current_block.number
-                    ..=client_input.last().unwrap().current_block.number
-                {
-                    hooks
-                        .on_proving_end(
-                            block_number,
-                            &proof_bytes,
-                            self.vk().as_ref(),
-                            cycle_count,
-                            proving_duration,
-                        )
-                        .await?;
-                }
+            for block_number in client_input.first().unwrap().current_block.number
+                ..=client_input.last().unwrap().current_block.number
+            {
+                hooks
+                    .on_proving_end(
+                        block_number,
+                        &proof_bytes,
+                        self.vk().as_ref(),
+                        cycle_count,
+                        proving_duration,
+                    )
+                    .await?;
+            }
 
-                info!("Proof successfully generated!");
+            info!("Proof successfully generated!");
         }
 
         Ok(())
