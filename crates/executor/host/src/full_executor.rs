@@ -109,12 +109,13 @@ pub trait BlockExecutor<C: ExecutorComponents> {
 
             println!("Public Commitment: {:#?}", public_commitment);
 
-            let public_bytes: Bytes = serialized_values.into();
+            let pub_hex_string = hex::encode(serialized_values);
+            let public_commitment = serde_json::to_string(&pub_hex_string)?;
 
             let start_block = client_input.first().unwrap().current_block.number;
             let end_block = client_input.last().unwrap().current_block.number;
 
-            save_proof_to_file(public_bytes.to_string(), start_block, end_block);
+            save_proof_to_file(public_commitment, start_block, end_block);
 
 
             // _ = public_commitment;
