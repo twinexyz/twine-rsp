@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cargo build --release 
+RUST_LOG=info L1_VALIDATOR_SET_PATH=/Users/swopnilparajuli/workspace/work/weaver/bin/node/res ./target/release/rsp --block-number $1 --genesis-path /Users/swopnilparajuli/workspace/work/weaver/bin/node/res/dev-genesis.json --rpc-url http://127.0.0.1:8545 
