@@ -1,28 +1,107 @@
-name: Pipelines
+name: Build Multi-Arch Rust Binary
 
 on:
   push:
     branches:
       - 'ci-binary-test'
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 env:
-  CARGO_INCREMENTAL: 0
-  CARGO_TERM_COLOR: always
-  CARGO_PROFILE_TEST_DEBUG: 0
-  CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
-  CARGO_PROFILE_RELEASE_LTO: true
+  REPO: ${{ inputs.repo_name }}
+  ORG: ${{ github.repository_owner }}
+  SHA: ${{ inputs.sha }}
 
 jobs:
-  build:
-    uses: twinexyz/workflows/.github/workflows/build-binary.yml@main
-    secrets: inherit
-    with:
-      sha: ${{ github.sha  }}
-      branch_slug: ${{ github.ref_name }}
-      repo_name: ${{ github.event.repository.name }}
+  build_arch:
+    name: Build Rust (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+        include:
+          - arch: amd64
+            runner: [self-hosted, linux, x64]
+            target: x86_64-unknown-linux-gnu
+          - arch: arm64
+            runner: [self-hosted, linux, arm64]
+            target: aarch64-unknown-linux-gnu
 
+    permissions:
+      contents: write   # needed for release upload
+      packages: write
 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Add target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Install cross compiler
+        if: matrix.arch == 'arm64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+
+      - name: Build
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Package binary
+        run: |
+          mkdir -p dist
+          cp target/${{ matrix.target }}/release/${{ env.REPO }} ./dist/${{ env.REPO }}-${{ matrix.arch }}
+          tar -czf ./dist/${{ env.REPO }}-${{ matrix.arch }}.tar.gz -C dist ${{ env.REPO }}-${{ matrix.arch }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries
+          path: ./dist/*.tar.gz
+
+  release:
+    needs: build_arch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: binaries
+          path: ./dist
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.sha }}
+          name: Release ${{ inputs.sha }}
+          files: ./dist/*
+#
+#name: Pipelines
+#
+#on:
+  #push:
+    #branches:
+      #- 'ci-binary-test'
+#
+#concurrency:
+  #group: ${{ github.workflow }}-${{ github.ref }}
+  #cancel-in-progress: true
+#
+#env:
+  #CARGO_INCREMENTAL: 0
+  #CARGO_TERM_COLOR: always
+  #CARGO_PROFILE_TEST_DEBUG: 0
+  #CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+  #CARGO_PROFILE_RELEASE_LTO: true
+#
+#jobs:
+  #build:
+    #uses: twinexyz/workflows/.github/workflows/build-binary.yml@main
+    #secrets: inherit
+    #with:
+      #sha: ${{ github.sha  }}
+      #branch_slug: ${{ github.ref_name }}
+      #repo_name: ${{ github.event.repository.name }}
+#
+#
+#
