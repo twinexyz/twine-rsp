@@ -36,6 +36,10 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Set Git Credentials
+        run: |
+          git config --global url."https://${{ secrets.GH_ACTION_PAT }}@github.com".insteadOf "https://github.com"
+
       - name: Add target
         run: rustup target add ${{ matrix.target }}
 
