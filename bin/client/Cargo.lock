@@ -5055,7 +5055,7 @@ dependencies = [
 [[package]]
 name = "twine-constants"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=lilixac%2Fverify-state-proofs-in-txn-precompile#fbb7dfc6f25a9055b6e4a50195000ff8f91a24a1"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#d6a509f8405dad078bf724f0190336983c6b1e56"
 dependencies = [
  "alloy-primitives",
 ]
@@ -5063,7 +5063,7 @@ dependencies = [
 [[package]]
 name = "twine-evm-contracts"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=lilixac%2Fverify-state-proofs-in-txn-precompile#fbb7dfc6f25a9055b6e4a50195000ff8f91a24a1"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#d6a509f8405dad078bf724f0190336983c6b1e56"
 dependencies = [
  "alloy-contract",
  "alloy-sol-types",
@@ -5073,7 +5073,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-consensus-verifier-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=lilixac%2Fverify-state-proofs-in-txn-precompile#fbb7dfc6f25a9055b6e4a50195000ff8f91a24a1"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#d6a509f8405dad078bf724f0190336983c6b1e56"
 dependencies = [
  "alloy-primitives",
  "reth-revm",
@@ -5084,7 +5084,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-transactions-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=lilixac%2Fverify-state-proofs-in-txn-precompile#fbb7dfc6f25a9055b6e4a50195000ff8f91a24a1"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#d6a509f8405dad078bf724f0190336983c6b1e56"
 dependencies = [
  "alloy-eips",
  "alloy-primitives",
@@ -5103,7 +5103,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-utils"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=lilixac%2Fverify-state-proofs-in-txn-precompile#fbb7dfc6f25a9055b6e4a50195000ff8f91a24a1"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#d6a509f8405dad078bf724f0190336983c6b1e56"
 dependencies = [
  "reth-revm",
  "twine-constants",
@@ -5131,7 +5131,7 @@ dependencies = [
 [[package]]
 name = "twine-zstd-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=lilixac%2Fverify-state-proofs-in-txn-precompile#fbb7dfc6f25a9055b6e4a50195000ff8f91a24a1"
+source = "git+https://github.com/twinexyz/weaver.git?branch=main#d6a509f8405dad078bf724f0190336983c6b1e56"
 dependencies = [
  "alloy-primitives",
  "alloy-sol-types",
