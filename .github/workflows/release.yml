@@ -1,0 +1,26 @@
+name: Pipelines
+
+on:
+  push:
+    branches:
+      - 'ci-binary-test'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_INCREMENTAL: 0
+  CARGO_TERM_COLOR: always
+  CARGO_PROFILE_TEST_DEBUG: 0
+  CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+  CARGO_PROFILE_RELEASE_LTO: true
+
+jobs:
+  build:
+    uses: twinexyz/workflows/.github/workflows/build-binary.yml@main
+    secrets: inherit
+    with:
+      sha: ${{ github.sha  }}
+      branch_slug: ${{ github.ref_name }}
+      repo_name: ${{ github.event.repository.name }}
