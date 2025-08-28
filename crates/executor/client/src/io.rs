@@ -147,7 +147,8 @@ impl DatabaseRef for TrieDB<'_> {
         let hashed_address = keccak256(address);
         let hashed_address = hashed_address.as_slice();
 
-        let account_in_trie: Option<TrieAccount> = self.inner.state_trie.get_rlp::<TrieAccount>(hashed_address).unwrap();
+        let account_in_trie: Option<TrieAccount> =
+            self.inner.state_trie.get_rlp::<TrieAccount>(hashed_address).unwrap();
 
         let account = account_in_trie.map(|account_in_trie| AccountInfo {
             balance: account_in_trie.balance,

@@ -15,12 +15,12 @@ revm-primitives = { version = "18.0.0", features = [
 ], default-features = false }
 
 # sp1
-sp1-zkvm = "5.1.0"
+sp1-zkvm = { git = "https://github.com/twinexyz/sp1.git", branch = "v5.0.0-twine"} 
 
 reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false, features = ["serde"] }
 reth-trie-common = { git = "https://github.com/paradigmxyz/reth", tag = "v1.3.10", default-features = false, features = ["eip1186", "serde"] }
-twine-types = { git = "https://github.com/twinexyz/weaver.git", branch = "lilixac/fix-range-exclusive-batch"  }
-twine-utils = { git = "https://github.com/twinexyz/weaver.git", branch = "lilixac/fix-range-exclusive-batch"  }
+twine-types = { git = "https://github.com/twinexyz/weaver.git", branch = "main"  }
+twine-utils = { git = "https://github.com/twinexyz/weaver.git", branch = "main"  }
 
 # Statically turns off logging
 log = { version = "0.4", features = ["max_level_off", "release_max_level_off"] }

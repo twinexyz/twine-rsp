@@ -76,29 +76,24 @@ impl PublicCommitment {
         if bytes.len() != LEN {
             return Err(format!("expected {} bytes, got {}", LEN, bytes.len()));
         }
-    
+
         let mut idx = 0;
-    
+
         let prev_batch_hash = FixedBytes::<32>::from_slice(&bytes[idx..idx + 32]);
         idx += 32;
-    
+
         let batch_hash = FixedBytes::<32>::from_slice(&bytes[idx..idx + 32]);
         idx += 32;
-    
+
         let ethereum_message_count = u64::from_be_bytes(bytes[idx..idx + 8].try_into().unwrap());
         idx += 8;
-    
+
         let solana_message_count = u64::from_be_bytes(bytes[idx..idx + 8].try_into().unwrap());
         idx += 8;
-    
+
         debug_assert_eq!(idx, LEN);
-    
-        Ok(Self {
-            prev_batch_hash,
-            batch_hash,
-            ethereum_message_count,
-            solana_message_count,
-        })
+
+        Ok(Self { prev_batch_hash, batch_hash, ethereum_message_count, solana_message_count })
     }
 }
 

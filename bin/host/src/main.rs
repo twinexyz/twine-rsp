@@ -3,10 +3,10 @@
 use std::{collections::HashMap, env, sync::Arc};
 
 use alloy_primitives::keccak256;
+use alloy_primitives::KECCAK256_EMPTY;
 use alloy_primitives::U256;
 use alloy_provider::Provider;
 use clap::Parser;
-use alloy_primitives::KECCAK256_EMPTY;
 use execute::PersistExecutionReport;
 use eyre::ensure;
 use reth_trie_common::AccountProof;

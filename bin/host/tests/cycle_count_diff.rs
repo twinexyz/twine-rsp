@@ -61,7 +61,7 @@ async fn test_in_zkvm() {
     .unwrap();
 
     executor.execute(20600000, 20600000, None, HashMap::new()).await.unwrap(); // TODO: load validator set
-                                                                         // if necessary
+                                                                               // if necessary
 }
 
 enum Hook {

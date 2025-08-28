@@ -14,7 +14,7 @@ use reth_primitives_traits::NodePrimitives;
 use rsp_client_executor::{io::ClientExecutorInput, PublicCommitment};
 use serde::de::DeserializeOwned;
 use sp1_prover::components::CpuProverComponents;
-use sp1_sdk::{ExecutionReport, Prover, SP1ProvingKey, SP1PublicValues, SP1Stdin, SP1VerifyingKey};
+use sp1_sdk::{ExecutionReport, HashableKey, Prover, SP1ProvingKey, SP1PublicValues, SP1Stdin, SP1VerifyingKey};
 use std::collections::HashMap as StdHashMap;
 use tokio::{task, time::sleep};
 use tracing::{info, info_span, warn};
@@ -25,6 +25,18 @@ use crate::{
 };
 
 pub type EitherExecutor<C, P> = Either<FullExecutor<C, P>, CachedExecutor<C>>;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct ZKProofBundle {
+    /// version of the zk proof: it is associated with the verifying key
+    pub version: u64, // TODO make it into an enum
+    /// zk proof
+    pub proof: Vec<u8>,
+    /// zk public commitments
+    pub public_value: Vec<u8>,
+    /// zk verification key, 
+    pub verification_key: [u8; 32],
+}
 
 pub async fn build_executor<C, P>(
     elf: Vec<u8>,
@@ -103,20 +115,24 @@ pub trait BlockExecutor<C: ExecutorComponents> {
 
             let serialized_values = public_values.to_vec();
 
-            let public_commitment =
-                PublicCommitment::abi_decode_packed(serialized_values.clone())
-                    .map_err(|e| eyre::eyre!(e))?;
+            let public_commitment = PublicCommitment::abi_decode_packed(serialized_values.clone())
+                .map_err(|e| eyre::eyre!(e))?;
 
             println!("Public Commitment: {:#?}", public_commitment);
 
-            let pub_hex_string = hex::encode(serialized_values);
-            let public_commitment = serde_json::to_string(&pub_hex_string)?;
+            let zk_proof_bundle = ZKProofBundle {
+                proof: vec![],
+                public_value: serialized_values,
+                verification_key: self.vk().bytes32_raw(),
+                version: 0
+            };
+
+            let zk_proof_bundle = serde_json::to_string(&zk_proof_bundle)?;
 
             let start_block = client_input.first().unwrap().current_block.number;
             let end_block = client_input.last().unwrap().current_block.number;
 
-            save_proof_to_file(public_commitment, start_block, end_block);
-
+            save_proof_to_file(zk_proof_bundle, start_block, end_block);
 
             // _ = public_commitment;
             // Read the block header.
@@ -156,6 +172,7 @@ pub trait BlockExecutor<C: ExecutorComponents> {
 
             let client = self.client();
             let pk = self.pk();
+            let vk = self.vk();
 
             let (proof, cycle_count) = task::spawn_blocking(move || {
                 client
@@ -167,10 +184,19 @@ pub trait BlockExecutor<C: ExecutorComponents> {
 
             let proving_duration = proving_start.elapsed();
             let proof_bytes = bincode::serialize(&proof.proof).unwrap();
-            let proof = serde_json::to_string(&proof).expect("could not serialize proof to string");
+            // let proof = serde_json::to_string(&proof).expect("could not serialize proof to string");
+
+            let zk_proof_bundle = ZKProofBundle {
+                proof: proof.bytes(),
+                public_value: proof.public_values.to_vec(),
+                verification_key: vk.bytes32_raw(),
+                version: 0
+            };
+
+            let zk_proof_bundle = serde_json::to_string(&zk_proof_bundle)?;
 
             save_proof_to_file(
-                proof,
+                zk_proof_bundle,
                 client_input.first().unwrap().current_block.number,
                 client_input.last().unwrap().current_block.number,
             );
