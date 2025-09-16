@@ -1193,6 +1193,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "borsh"
+version = "1.5.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ad8646f98db542e39fc66e68a20b2144f6a732636df7c2354e74645faaa433ce"
+dependencies = [
+ "borsh-derive",
+ "cfg_aliases",
+]
+
+[[package]]
+name = "borsh-derive"
+version = "1.5.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fdd1d3c0c2f5833f22386f252fe8ed005c7f59fdcddeef025c01b4c3b9fd9ac3"
+dependencies = [
+ "once_cell",
+ "proc-macro-crate",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.106",
+]
+
+[[package]]
 name = "bumpalo"
 version = "3.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1270,6 +1293,12 @@ name = "cfg-if"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2fd1289c04a9ea8cb22300a459a72a385d7c73d3259e2ed7dcb2af674838cfa9"
+
+[[package]]
+name = "cfg_aliases"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "613afe47fcd5fac7ccf1db93babcb082c5994d996f20b8b159f2ad1658eb5724"
 
 [[package]]
 name = "chrono"
@@ -5082,7 +5111,7 @@ dependencies = [
 [[package]]
 name = "twine-constants"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=main#d6a509f8405dad078bf724f0190336983c6b1e56"
+source = "git+https://github.com/twinexyz/weaver.git?branch=staging#9edaeb8f9c3402c0513c6ac9a33727794b3b4047"
 dependencies = [
  "alloy-primitives",
 ]
@@ -5090,9 +5119,10 @@ dependencies = [
 [[package]]
 name = "twine-evm-contracts"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=main#d6a509f8405dad078bf724f0190336983c6b1e56"
+source = "git+https://github.com/twinexyz/weaver.git?branch=staging#9edaeb8f9c3402c0513c6ac9a33727794b3b4047"
 dependencies = [
  "alloy-contract",
+ "alloy-primitives",
  "alloy-sol-types",
  "serde",
 ]
@@ -5100,7 +5130,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-consensus-verifier-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=main#d6a509f8405dad078bf724f0190336983c6b1e56"
+source = "git+https://github.com/twinexyz/weaver.git?branch=staging#9edaeb8f9c3402c0513c6ac9a33727794b3b4047"
 dependencies = [
  "alloy-primitives",
  "reth-revm",
@@ -5111,16 +5141,19 @@ dependencies = [
 [[package]]
 name = "twine-l1-transactions-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=main#d6a509f8405dad078bf724f0190336983c6b1e56"
+source = "git+https://github.com/twinexyz/weaver.git?branch=staging#9edaeb8f9c3402c0513c6ac9a33727794b3b4047"
 dependencies = [
  "alloy-eips",
  "alloy-primitives",
  "alloy-sol-types",
+ "bincode",
+ "borsh",
  "eyre",
  "reth-revm",
  "reth-tracing",
  "reth-trie-common",
  "serde_json",
+ "sha2 0.10.8",
  "thiserror 2.0.16",
  "twine-constants",
  "twine-evm-contracts",
@@ -5130,16 +5163,17 @@ dependencies = [
 [[package]]
 name = "twine-l1-utils"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=main#d6a509f8405dad078bf724f0190336983c6b1e56"
+source = "git+https://github.com/twinexyz/weaver.git?branch=staging#9edaeb8f9c3402c0513c6ac9a33727794b3b4047"
 dependencies = [
  "reth-revm",
+ "serde",
  "twine-constants",
 ]
 
 [[package]]
 name = "twine-types"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=main#d6a509f8405dad078bf724f0190336983c6b1e56"
+source = "git+https://github.com/twinexyz/weaver.git?branch=staging#9edaeb8f9c3402c0513c6ac9a33727794b3b4047"
 dependencies = [
  "alloy-primitives",
  "serde",
@@ -5149,7 +5183,7 @@ dependencies = [
 [[package]]
 name = "twine-utils"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=main#d6a509f8405dad078bf724f0190336983c6b1e56"
+source = "git+https://github.com/twinexyz/weaver.git?branch=staging#9edaeb8f9c3402c0513c6ac9a33727794b3b4047"
 dependencies = [
  "alloy-primitives",
  "serde",
@@ -5158,7 +5192,7 @@ dependencies = [
 [[package]]
 name = "twine-zstd-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=main#d6a509f8405dad078bf724f0190336983c6b1e56"
+source = "git+https://github.com/twinexyz/weaver.git?branch=staging#9edaeb8f9c3402c0513c6ac9a33727794b3b4047"
 dependencies = [
  "alloy-primitives",
  "alloy-sol-types",
