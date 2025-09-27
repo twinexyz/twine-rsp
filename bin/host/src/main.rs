@@ -2,9 +2,7 @@
 
 use std::{collections::HashMap, env, sync::Arc};
 
-use alloy_primitives::keccak256;
-use alloy_primitives::KECCAK256_EMPTY;
-use alloy_primitives::U256;
+use alloy_primitives::{keccak256, KECCAK256_EMPTY, U256};
 use alloy_provider::Provider;
 use clap::Parser;
 use execute::PersistExecutionReport;
@@ -89,11 +87,8 @@ async fn main() -> eyre::Result<()> {
         // TODO: After consensus precompile is merged
         // let validator_sets = load_validator_sets();
         let validator_sets = HashMap::new();
-        let block_execution_strategy_factory = create_eth_block_execution_strategy_factory(
-            &config.genesis,
-            config.custom_beneficiary,
-            validator_sets.clone(),
-        );
+        let block_execution_strategy_factory =
+            create_eth_block_execution_strategy_factory(&config.genesis, config.custom_beneficiary);
         let provider = config.rpc_url.as_ref().map(|url| create_provider(url.clone()));
 
         let batch_metadata = match provider {
@@ -134,8 +129,9 @@ async fn main() -> eyre::Result<()> {
 
 // TODO: After consensus precompile is merged
 // fn load_validator_sets() -> HashMap<String, String> {
-//     let validator_set_base_path = env::var("L1_VALIDATOR_SET_PATH").expect("provide the base directory path that contains the validator set files for the chains you want to register in the precompiles");
-//     let validator_set_files = fs::read_dir(validator_set_base_path).unwrap();
+//     let validator_set_base_path = env::var("L1_VALIDATOR_SET_PATH").expect("provide the base
+// directory path that contains the validator set files for the chains you want to register in the
+// precompiles");     let validator_set_files = fs::read_dir(validator_set_base_path).unwrap();
 //     let mut validator_set_hashmap = HashMap::new();
 //     () = validator_set_files
 //         .into_iter()

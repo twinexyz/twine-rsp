@@ -34,9 +34,9 @@ pub fn main() {
         let executor = EthClientExecutor::eth(
             Arc::new((&input.genesis).try_into().unwrap()),
             input.custom_beneficiary,
-            validator_sets.clone(),
         );
-        let header = executor.execute(input).expect("failed to execute client");
+        let header = executor.execute(input.clone()).expect("failed to execute client");
+        // assert_eq!(header.hash_slow(), input.current_block.header.hash_slow()); 
         headers.push(header);
     }
 

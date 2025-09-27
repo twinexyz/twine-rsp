@@ -7,22 +7,26 @@ use std::{
     time::{Duration, Instant},
 };
 
-use alloy_provider::Provider;
-use either::Either;
-use eyre::bail;
-use reth_primitives_traits::NodePrimitives;
-use rsp_client_executor::{io::ClientExecutorInput, PublicCommitment};
-use serde::de::DeserializeOwned;
-use sp1_prover::components::CpuProverComponents;
-use sp1_sdk::{ExecutionReport, HashableKey, Prover, SP1ProvingKey, SP1PublicValues, SP1Stdin, SP1VerifyingKey};
-use std::collections::HashMap as StdHashMap;
-use tokio::{task, time::sleep};
-use tracing::{info, info_span, warn};
-
 use crate::{
     executor_components::MaybeProveWithCycles, Config, ExecutionHooks, ExecutorComponents,
     HostExecutor,
 };
+use alloy_provider::Provider;
+use either::Either;
+use eyre::bail;
+use reth_primitives_traits::NodePrimitives;
+use rsp_client_executor::{
+    io::{BatchMetadata, ClientExecutorInput, ClientInput},
+    PublicCommitment,
+};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use sp1_prover::components::CpuProverComponents;
+use sp1_sdk::{
+    ExecutionReport, HashableKey, Prover, SP1ProvingKey, SP1PublicValues, SP1Stdin, SP1VerifyingKey,
+};
+use std::collections::HashMap as StdHashMap;
+use tokio::{task, time::sleep};
+use tracing::{info, info_span, warn};
 
 pub type EitherExecutor<C, P> = Either<FullExecutor<C, P>, CachedExecutor<C>>;
 
@@ -34,7 +38,7 @@ struct ZKProofBundle {
     pub proof: Vec<u8>,
     /// zk public commitments
     pub public_value: Vec<u8>,
-    /// zk verification key, 
+    /// zk verification key,
     pub verification_key: [u8; 32],
 }
 
@@ -124,7 +128,7 @@ pub trait BlockExecutor<C: ExecutorComponents> {
                 proof: vec![],
                 public_value: serialized_values,
                 verification_key: self.vk().bytes32_raw(),
-                version: 0
+                version: 0,
             };
 
             let zk_proof_bundle = serde_json::to_string(&zk_proof_bundle)?;
@@ -164,8 +168,8 @@ pub trait BlockExecutor<C: ExecutorComponents> {
             info!("Starting proof generation");
 
             let proving_start = Instant::now();
-            for block_number in client_input.clone().first().unwrap().current_block.number
-                ..=client_input.last().unwrap().current_block.number
+            for block_number in client_input.clone().first().unwrap().current_block.number..=
+                client_input.last().unwrap().current_block.number
             {
                 hooks.on_proving_start(block_number).await?;
             }
@@ -184,13 +188,14 @@ pub trait BlockExecutor<C: ExecutorComponents> {
 
             let proving_duration = proving_start.elapsed();
             let proof_bytes = bincode::serialize(&proof.proof).unwrap();
-            // let proof = serde_json::to_string(&proof).expect("could not serialize proof to string");
+            // let proof = serde_json::to_string(&proof).expect("could not serialize proof to
+            // string");
 
             let zk_proof_bundle = ZKProofBundle {
                 proof: proof.bytes(),
                 public_value: proof.public_values.to_vec(),
                 verification_key: vk.bytes32_raw(),
-                version: 0
+                version: 0,
             };
 
             let zk_proof_bundle = serde_json::to_string(&zk_proof_bundle)?;
@@ -201,8 +206,8 @@ pub trait BlockExecutor<C: ExecutorComponents> {
                 client_input.last().unwrap().current_block.number,
             );
 
-            for block_number in client_input.first().unwrap().current_block.number
-                ..=client_input.last().unwrap().current_block.number
+            for block_number in client_input.first().unwrap().current_block.number..=
+                client_input.last().unwrap().current_block.number
             {
                 hooks
                     .on_proving_end(
@@ -379,24 +384,24 @@ where
                     },
                 );
 
-        let client_input = match client_input_from_cache {
-            Some(mut client_input_from_cache) => {
-                // Override opcode tracking from cache by the setting provided by the user
-                client_input_from_cache.opcode_tracking = self.config.opcode_tracking;
-                client_input_from_cache
-            }
-            None => {
-                // Execute the host.
-                let client_input = self
-                    .host_executor
-                    .execute(
-                        block_number,
-                        &self.provider,
-                        self.config.genesis.clone(),
-                        self.config.custom_beneficiary,
-                        self.config.opcode_tracking,
-                    )
-                    .await?;
+            let client_input = match client_input_from_cache {
+                Some(mut client_input_from_cache) => {
+                    // Override opcode tracking from cache by the setting provided by the user
+                    client_input_from_cache.opcode_tracking = self.config.opcode_tracking;
+                    client_input_from_cache
+                }
+                None => {
+                    // Execute the host.
+                    let client_input = self
+                        .host_executor
+                        .execute(
+                            block_number,
+                            &self.provider,
+                            self.config.genesis.clone(),
+                            self.config.custom_beneficiary,
+                            self.config.opcode_tracking,
+                        )
+                        .await?;
 
                     if let Some(ref cache_dir) = self.config.cache_dir {
                         let input_folder =
@@ -405,8 +410,8 @@ where
                             std::fs::create_dir_all(&input_folder)?;
                         }
 
-                    let input_path = input_folder.join(format!("{block_number}.bin"));
-                    let mut cache_file = std::fs::File::create(input_path)?;
+                        let input_path = input_folder.join(format!("{block_number}.bin"));
+                        let mut cache_file = std::fs::File::create(input_path)?;
 
                         bincode::serialize_into(&mut cache_file, &client_input)?;
                     }

@@ -6,23 +6,34 @@
 //! configuring the custom CustomEvmConfig precompiles and instructions.
 
 use alloy_evm::EthEvm;
-use reth_evm::{precompiles::PrecompilesMap, Database, EvmEnv, EvmFactory};
+use reth_evm::{
+    precompiles::{DynPrecompile, PrecompileInput, PrecompilesMap},
+    Database, EvmEnv, EvmFactory,
+};
 use revm::{
     bytecode::opcode::OpCode,
     context::{
         result::{EVMError, HaltReason},
         BlockEnv, CfgEnv, TxEnv,
     },
-    handler::EthPrecompiles,
     inspector::NoOpInspector,
     interpreter::{
         interpreter_types::{Jumps, LoopControl},
         Interpreter, InterpreterTypes,
     },
+    precompile::{PrecompileId, PrecompileOutput, PrecompileResult, Precompiles},
     Context, Inspector, MainBuilder, MainContext,
 };
-use revm_primitives::{hardfork::SpecId, Address};
+use revm_primitives::{hardfork::SpecId, Address, Bytes};
 use std::fmt::Debug;
+use twine_constants::precompiles::{
+    TWINE_CONSENSUS_VERIFIER_PRECOMPILE_ADDRESS, TWINE_TRANSACTION_PRECOMPILE_ADDRESS,
+    TWINE_ZSTD_PRECOMPILE_ADDRESS,
+};
+
+use twine_l1_consensus_verifier_precompile as consensus;
+use twine_l1_transactions_precompile as l1tx;
+use twine_zstd_precompile as zstd;
 
 #[derive(Debug, Clone)]
 pub struct CustomEvmFactory {
@@ -64,7 +75,7 @@ impl EvmFactory for CustomEvmFactory {
         }
 
         #[allow(unused_mut)]
-        let mut precompiles = PrecompilesMap::from(EthPrecompiles::default());
+        let mut precompiles = create_precompiles_map();
 
         #[cfg(target_os = "zkvm")]
         precompiles.map_precompiles(|address, p| {
@@ -150,4 +161,78 @@ impl<CTX, INTR: InterpreterTypes> Inspector<CTX, INTR> for OpCodeTrackingInspect
         #[cfg(target_os = "zkvm")]
         println!("cycle-tracker-report-end: opcode-{}", self.current);
     }
+}
+
+/// Create a PrecompilesMap with standard Ethereum precompiles and Twine
+/// custom precompiles
+pub fn create_precompiles_map() -> PrecompilesMap {
+    // Start with standard Ethereum precompiles
+    let mut precompiles = PrecompilesMap::from_static(&Precompiles::prague());
+
+    // Add Twine custom precompiles
+
+    {
+        let tx: DynPrecompile = (
+            PrecompileId::custom("twine_transaction"),
+            move |input: PrecompileInput<'_>| -> PrecompileResult {
+                match l1tx::execute(input.data, input.gas) {
+                    Ok((bytes, gas_used, reverted)) => {
+                        Ok(PrecompileOutput { gas_used, bytes, reverted })
+                    }
+                    Err(err) => Ok(PrecompileOutput {
+                        gas_used: 0,
+                        bytes: Bytes::copy_from_slice(err.as_bytes()),
+                        reverted: true,
+                    }),
+                }
+            },
+        )
+            .into();
+
+        precompiles.apply_precompile(&TWINE_TRANSACTION_PRECOMPILE_ADDRESS, |_| Some(tx));
+    }
+
+    {
+        let cons: DynPrecompile = (
+            PrecompileId::custom("twine_consensus_verifier"),
+            move |input: PrecompileInput<'_>| -> PrecompileResult {
+                match consensus::execute(input.data, input.gas) {
+                    Ok((bytes, gas_used, reverted)) => {
+                        Ok(PrecompileOutput { gas_used, bytes, reverted })
+                    }
+                    Err(err) => Ok(PrecompileOutput {
+                        gas_used: 0,
+                        bytes: Bytes::copy_from_slice(err.as_bytes()),
+                        reverted: true,
+                    }),
+                }
+            },
+        )
+            .into();
+
+        precompiles.apply_precompile(&TWINE_CONSENSUS_VERIFIER_PRECOMPILE_ADDRESS, |_| Some(cons));
+    }
+
+    {
+        let z: DynPrecompile = (
+            PrecompileId::custom("twine_zstd"),
+            move |input: PrecompileInput<'_>| -> PrecompileResult {
+                match zstd::execute(input.data, input.gas) {
+                    Ok((bytes, gas_used, reverted)) => {
+                        Ok(PrecompileOutput { gas_used, bytes, reverted })
+                    }
+                    Err(err) => Ok(PrecompileOutput {
+                        gas_used: 0,
+                        bytes: Bytes::copy_from_slice(err.as_bytes()),
+                        reverted: true,
+                    }),
+                }
+            },
+        )
+            .into();
+
+        precompiles.apply_precompile(&TWINE_ZSTD_PRECOMPILE_ADDRESS, |_| Some(z));
+    }
+
+    precompiles
 }

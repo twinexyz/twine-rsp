@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 use alloy_provider::{network::Ethereum, Network, RootProvider};
 use reth_chainspec::ChainSpec;
@@ -92,11 +92,10 @@ async fn run_eth_e2e(
     let chain_spec: Arc<ChainSpec> = Arc::new(genesis.try_into().unwrap());
 
     // Setup the host executor.
-    let host_executor =
-        EthHostExecutor::eth(chain_spec.clone(), custom_beneficiary, HashMap::new());
+    let host_executor = EthHostExecutor::eth(chain_spec.clone(), custom_beneficiary);
 
     // Setup the client executor.
-    let client_executor = EthClientExecutor::eth(chain_spec, custom_beneficiary, HashMap::new());
+    let client_executor = EthClientExecutor::eth(chain_spec, custom_beneficiary);
 
     run_e2e::<_, ChainSpec, Ethereum>(
         host_executor,
