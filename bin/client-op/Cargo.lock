@@ -5367,15 +5367,15 @@ dependencies = [
 [[package]]
 name = "twine-constants"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=chore%2Fdeps%2Freth#3b30bc36ba671a61349df5a227adc36da74a0df2"
+source = "git+https://github.com/twinexyz/weaver.git?tag=v.0.0.1-beta#e6d73bfe72b26cef6b8b0d5f9f8a1e69206d90a6"
 dependencies = [
  "alloy-primitives",
 ]
 
 [[package]]
 name = "twine-evm-contracts"
-version = "1.8.1"
-source = "git+https://github.com/twinexyz/weaver.git?branch=chore%2Fdeps%2Freth#3b30bc36ba671a61349df5a227adc36da74a0df2"
+version = "1.7.0"
+source = "git+https://github.com/twinexyz/weaver.git?tag=v.0.0.1-beta#e6d73bfe72b26cef6b8b0d5f9f8a1e69206d90a6"
 dependencies = [
  "alloy-contract",
  "alloy-primitives",
@@ -5386,7 +5386,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-consensus-verifier-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=chore%2Fdeps%2Freth#3b30bc36ba671a61349df5a227adc36da74a0df2"
+source = "git+https://github.com/twinexyz/weaver.git?tag=v.0.0.1-beta#e6d73bfe72b26cef6b8b0d5f9f8a1e69206d90a6"
 dependencies = [
  "alloy-primitives",
  "reth-revm",
@@ -5396,8 +5396,8 @@ dependencies = [
 
 [[package]]
 name = "twine-l1-transactions-precompile"
-version = "1.8.1"
-source = "git+https://github.com/twinexyz/weaver.git?branch=chore%2Fdeps%2Freth#3b30bc36ba671a61349df5a227adc36da74a0df2"
+version = "1.7.0"
+source = "git+https://github.com/twinexyz/weaver.git?tag=v.0.0.1-beta#e6d73bfe72b26cef6b8b0d5f9f8a1e69206d90a6"
 dependencies = [
  "alloy-eips",
  "alloy-primitives",
@@ -5418,8 +5418,8 @@ dependencies = [
 
 [[package]]
 name = "twine-l1-utils"
-version = "1.8.1"
-source = "git+https://github.com/twinexyz/weaver.git?branch=chore%2Fdeps%2Freth#3b30bc36ba671a61349df5a227adc36da74a0df2"
+version = "1.7.0"
+source = "git+https://github.com/twinexyz/weaver.git?tag=v.0.0.1-beta#e6d73bfe72b26cef6b8b0d5f9f8a1e69206d90a6"
 dependencies = [
  "reth-revm",
  "serde",
@@ -5428,8 +5428,8 @@ dependencies = [
 
 [[package]]
 name = "twine-zstd-precompile"
-version = "1.8.1"
-source = "git+https://github.com/twinexyz/weaver.git?branch=chore%2Fdeps%2Freth#3b30bc36ba671a61349df5a227adc36da74a0df2"
+version = "1.7.0"
+source = "git+https://github.com/twinexyz/weaver.git?tag=v.0.0.1-beta#e6d73bfe72b26cef6b8b0d5f9f8a1e69206d90a6"
 dependencies = [
  "alloy-primitives",
  "alloy-sol-types",

@@ -1,21 +1,26 @@
 [workspace.package]
 [package]
 name = "rsp-client-op"
-description = ""
 edition = "2021"
+description = ""
 
 [dependencies]
 bincode = "1.3.3"
 
 # workspace
-rsp-client-executor = { path = "../../crates/executor/client", features = ["optimism"]}
+rsp-client-executor = { path = "../../crates/executor/client", default-features = false, optional = true }
 
 # sp1
-sp1-zkvm = { git = "https://github.com/twinexyz/sp1.git", branch = "v5.0.0-twine"} 
+sp1-zkvm = { git = "https://github.com/twinexyz/sp1.git", branch = "v5.0.0-twine" }
 
 # Statically turns off logging
 log = { version = "0.4", features = ["max_level_off", "release_max_level_off"] }
 tracing = { version = "0.1", features = ["max_level_off", "release_max_level_off"] }
+
+[features]
+testnet = ["rsp-client-executor/testnet", "rsp-client-executor/optimism"]
+devnet = ["rsp-client-executor/devnet", "rsp-client-executor/optimism"]
+mainnet = ["rsp-client-executor/mainnet", "rsp-client-executor/optimism"]
 
 [patch.crates-io]
 # Precompile patches

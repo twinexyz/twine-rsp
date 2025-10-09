@@ -1,11 +1,11 @@
 [package]
 name = "rsp-mpt"
-description = ""
 version.workspace = true
 edition.workspace = true
-license.workspace = true
 homepage.workspace = true
+license.workspace = true
 repository.workspace = true
+description = ""
 
 [lints]
 workspace = true
@@ -22,7 +22,7 @@ reth-trie.workspace = true
 alloy-primitives.workspace = true
 alloy-rlp.workspace = true
 alloy-rpc-types.workspace = true
-alloy-rpc-types-debug = {workspace = true, optional = true }
+alloy-rpc-types-debug = { workspace = true, optional = true }
 
 [dev-dependencies]
 hex-literal.workspace = true

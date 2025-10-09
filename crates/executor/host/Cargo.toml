@@ -1,48 +1,48 @@
 [package]
 name = "rsp-host-executor"
-description = ""
 version.workspace = true
 edition.workspace = true
-license.workspace = true
 homepage.workspace = true
+license.workspace = true
 repository.workspace = true
+description = ""
 
 [lints]
 workspace = true
 
 [dependencies]
-serde_json.workspace = true
-tokio = { workspace = true, features = ["time", "rt"] }
-thiserror.workspace = true
-tracing.workspace = true
-serde.workspace = true
-url.workspace = true
-reqwest = { workspace = true, features = ["json"], optional = true }
-eyre = "0.6.12"
 bincode = "1.3.3"
 either = "1.13.0"
+eyre = "0.6.12"
+reqwest = { workspace = true, features = ["json"], optional = true }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio = { workspace = true, features = ["time", "rt"] }
+tracing.workspace = true
+url.workspace = true
 
 # workspace
-rsp-rpc-db.workspace = true
-rsp-client-executor = { workspace = true, features = ["optimism"] }
+rsp-client-executor = { workspace = true, default-features = false, optional = true }
 rsp-mpt = { workspace = true }
 rsp-primitives = { workspace = true, features = ["optimism"] }
+rsp-rpc-db.workspace = true
 
 # sp1
-sp1-sdk.workspace = true
 sp1-prover.workspace = true
+sp1-sdk.workspace = true
 
 # reth
+reth-chainspec.workspace = true
+reth-errors.workspace = true
+reth-ethereum-primitives.workspace = true
 reth-evm.workspace = true
 reth-evm-ethereum.workspace = true
-reth-optimism-evm = { workspace = true }
 reth-optimism-chainspec = { workspace = true }
+reth-optimism-evm = { workspace = true }
 reth-optimism-primitives.workspace = true
-reth-ethereum-primitives.workspace = true
-reth-primitives-traits  = { workspace = true, features = ["secp256k1"] }
+reth-primitives-traits = { workspace = true, features = ["secp256k1"] }
 reth-trie.workspace = true
-reth-errors.workspace = true
-reth-chainspec.workspace = true
 
 # revm
 revm.workspace = true
@@ -51,28 +51,32 @@ revm-primitives.workspace = true
 # alloy
 alloy-chains.workspace = true
 alloy-consensus.workspace = true
-alloy-primitives.workspace = true
 alloy-network.workspace = true
+alloy-primitives.workspace = true
 alloy-provider.workspace = true
-alloy-transport.workspace = true
 alloy-rpc-types.workspace = true
+alloy-transport.workspace = true
 
 # op
 op-alloy-network.workspace = true
 
 [dev-dependencies]
 alloy-primitives.workspace = true
-tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+bincode = "1.3.3"
+dotenv = "0.15.0"
 serde.workspace = true
 serde_json.workspace = true
 tokio.workspace = true
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 url.workspace = true
-bincode = "1.3.3"
-dotenv = "0.15.0"
 
 [features]
+default = ["mainnet"]
 alerting = ["dep:reqwest"]
 execution-witness = [
-    "rsp-mpt/execution-witness",
-    "rsp-rpc-db/execution-witness",
+  "rsp-mpt/execution-witness",
+  "rsp-rpc-db/execution-witness",
 ]
+testnet = ["rsp-client-executor/testnet", "rsp-client-executor/optimism"]
+devnet = ["rsp-client-executor/devnet", "rsp-client-executor/optimism"]
+mainnet = ["rsp-client-executor/mainnet", "rsp-client-executor/optimism"]
