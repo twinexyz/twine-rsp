@@ -115,12 +115,12 @@ op-alloy-network = "0.20.0"
 op-alloy-rpc-types = "0.20.0"
 
 # weaver dependency
-twine-constants = { git = "https://github.com/twinexyz/weaver.git", tag = "v.0.0.1-beta" }
-twine-l1-consensus-verifier-precompile = { git = "https://github.com/twinexyz/weaver.git", tag = "v.0.0.1-beta" }
-twine-l1-transactions-precompile = { git = "https://github.com/twinexyz/weaver.git", tag = "v.0.0.1-beta", default-features = false }
-twine-rpc = { git = "https://github.com/twinexyz/weaver.git", tag = "v.0.0.1-beta" }
-twine-types = { git = "https://github.com/twinexyz/weaver.git", tag = "v.0.0.1-beta" }
-twine-zstd-precompile = { git = "https://github.com/twinexyz/weaver.git", tag = "v.0.0.1-beta" }
+twine-constants = { git = "https://github.com/twinexyz/weaver.git", branch = "staging" }
+twine-l1-consensus-verifier-precompile = { git = "https://github.com/twinexyz/weaver.git", branch = "staging" }
+twine-l1-transactions-precompile = { git = "https://github.com/twinexyz/weaver.git", branch = "staging", default-features = false }
+twine-rpc = { git = "https://github.com/twinexyz/weaver.git", branch = "staging" }
+twine-types = { git = "https://github.com/twinexyz/weaver.git", branch = "staging" }
+twine-zstd-precompile = { git = "https://github.com/twinexyz/weaver.git", branch = "staging" }
 
 [workspace.lints]
 rust.missing_debug_implementations = "warn"
