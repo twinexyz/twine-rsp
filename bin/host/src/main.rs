@@ -95,6 +95,8 @@ async fn main() -> eyre::Result<()> {
             Some(ref prov) => {
                 let to_block = args.to_block.unwrap_or(block_number);
                 build_batch_metadata(
+                    args.eth_chain_id, 
+                    args.solana_chain_id, 
                     prov,
                     config.rpc_url.as_ref().unwrap().as_str(),
                     block_number,
@@ -160,6 +162,8 @@ fn calculate_one_level_mapping_slot(inner_key: U256) -> U256 {
 }
 
 async fn build_batch_metadata(
+    eth_chain_id: u64, 
+    solana_chain_id: u64, 
     provider: &alloy_provider::RootProvider,
     rpc_url: &str,
     from_block: u64,
@@ -180,8 +184,8 @@ async fn build_batch_metadata(
     };
 
     // Storage proofs
-    let ethereum_slot = calculate_one_level_mapping_slot(U256::from(17000));
-    let solana_slot = calculate_one_level_mapping_slot(U256::from(900));
+    let ethereum_slot = calculate_one_level_mapping_slot(U256::from(eth_chain_id));
+    let solana_slot = calculate_one_level_mapping_slot(U256::from(solana_chain_id));
 
     let proof = provider
         .get_proof(TWINE_SYSTEM_STORAGE_CONTRACT, vec![ethereum_slot.into(), solana_slot.into()])

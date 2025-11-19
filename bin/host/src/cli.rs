@@ -49,6 +49,14 @@ pub struct HostArgs {
     #[clap(long)]
     /// Whether to track the cycle count of opcodes.
     pub opcode_tracking: bool,
+
+    /// Ethereum Chain ID
+    #[clap(long, default_value_t = 11155111)]
+    pub eth_chain_id: u64, 
+
+    /// Solana Chain ID
+    #[clap(long, default_value_t = 900)]
+    pub solana_chain_id: u64,
 }
 
 impl HostArgs {
