@@ -3432,7 +3432,7 @@ dependencies = [
  "libc",
  "percent-encoding",
  "pin-project-lite",
- "socket2 0.6.1",
+ "socket2 0.5.10",
  "system-configuration",
  "tokio",
  "tower-service",
@@ -4536,7 +4536,7 @@ version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ff32365de1b6743cb203b710788263c44a03de03802daf96092f2da4fe6ba4d7"
 dependencies = [
- "proc-macro-crate 3.4.0",
+ "proc-macro-crate 1.3.1",
  "proc-macro2",
  "quote",
  "syn 2.0.108",
@@ -5456,7 +5456,7 @@ dependencies = [
  "quinn-udp",
  "rustc-hash 2.1.1",
  "rustls",
- "socket2 0.6.1",
+ "socket2 0.5.10",
  "thiserror 2.0.17",
  "tokio",
  "tracing",
@@ -5493,7 +5493,7 @@ dependencies = [
  "cfg_aliases",
  "libc",
  "once_cell",
- "socket2 0.6.1",
+ "socket2 0.5.10",
  "tracing",
  "windows-sys 0.60.2",
 ]
@@ -9073,7 +9073,7 @@ dependencies = [
 [[package]]
 name = "twine-constants"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=staging#5f5580624cb20e1f3a8129c8ca480db4031cd487"
+source = "git+https://github.com/twinexyz/weaver.git?branch=staging#91928ac1024229c081e8d1603282ef8df26b0e5e"
 dependencies = [
  "alloy-primitives",
 ]
@@ -9081,7 +9081,7 @@ dependencies = [
 [[package]]
 name = "twine-db-batch"
 version = "1.7.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=staging#5f5580624cb20e1f3a8129c8ca480db4031cd487"
+source = "git+https://github.com/twinexyz/weaver.git?branch=staging#91928ac1024229c081e8d1603282ef8df26b0e5e"
 dependencies = [
  "alloy-primitives",
  "bincode",
@@ -9099,7 +9099,7 @@ dependencies = [
 [[package]]
 name = "twine-evm-contracts"
 version = "1.7.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=staging#5f5580624cb20e1f3a8129c8ca480db4031cd487"
+source = "git+https://github.com/twinexyz/weaver.git?branch=staging#91928ac1024229c081e8d1603282ef8df26b0e5e"
 dependencies = [
  "alloy-contract",
  "alloy-primitives",
@@ -9110,7 +9110,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-consensus-verifier-precompile"
 version = "0.1.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=staging#5f5580624cb20e1f3a8129c8ca480db4031cd487"
+source = "git+https://github.com/twinexyz/weaver.git?branch=staging#91928ac1024229c081e8d1603282ef8df26b0e5e"
 dependencies = [
  "alloy-primitives",
  "reth-revm",
@@ -9121,7 +9121,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-transactions-precompile"
 version = "1.7.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=staging#5f5580624cb20e1f3a8129c8ca480db4031cd487"
+source = "git+https://github.com/twinexyz/weaver.git?branch=staging#91928ac1024229c081e8d1603282ef8df26b0e5e"
 dependencies = [
  "alloy-eips",
  "alloy-primitives",
@@ -9143,7 +9143,7 @@ dependencies = [
 [[package]]
 name = "twine-l1-utils"
 version = "1.7.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=staging#5f5580624cb20e1f3a8129c8ca480db4031cd487"
+source = "git+https://github.com/twinexyz/weaver.git?branch=staging#91928ac1024229c081e8d1603282ef8df26b0e5e"
 dependencies = [
  "reth-revm",
  "serde",
@@ -9153,7 +9153,7 @@ dependencies = [
 [[package]]
 name = "twine-rpc"
 version = "1.7.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=staging#5f5580624cb20e1f3a8129c8ca480db4031cd487"
+source = "git+https://github.com/twinexyz/weaver.git?branch=staging#91928ac1024229c081e8d1603282ef8df26b0e5e"
 dependencies = [
  "alloy-primitives",
  "eyre",
@@ -9165,7 +9165,7 @@ dependencies = [
 [[package]]
 name = "twine-types"
 version = "1.7.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=staging#5f5580624cb20e1f3a8129c8ca480db4031cd487"
+source = "git+https://github.com/twinexyz/weaver.git?branch=staging#91928ac1024229c081e8d1603282ef8df26b0e5e"
 dependencies = [
  "alloy-primitives",
  "serde",
@@ -9175,7 +9175,7 @@ dependencies = [
 [[package]]
 name = "twine-utils"
 version = "1.7.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=staging#5f5580624cb20e1f3a8129c8ca480db4031cd487"
+source = "git+https://github.com/twinexyz/weaver.git?branch=staging#91928ac1024229c081e8d1603282ef8df26b0e5e"
 dependencies = [
  "alloy-primitives",
  "serde",
@@ -9184,7 +9184,7 @@ dependencies = [
 [[package]]
 name = "twine-zstd-precompile"
 version = "1.7.0"
-source = "git+https://github.com/twinexyz/weaver.git?branch=staging#5f5580624cb20e1f3a8129c8ca480db4031cd487"
+source = "git+https://github.com/twinexyz/weaver.git?branch=staging#91928ac1024229c081e8d1603282ef8df26b0e5e"
 dependencies = [
  "alloy-primitives",
  "alloy-sol-types",
@@ -9608,7 +9608,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
