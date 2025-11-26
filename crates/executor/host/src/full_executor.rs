@@ -575,3 +575,12 @@ fn try_load_input_from_cache<P: NodePrimitives + DeserializeOwned>(
         Ok(None)
     }
 }
+
+
+#[test]
+fn test_public_value() {
+    let pub_value: [u8; 80] = [198,204,5,80,158,237,131,79,234,7,9,79,220,255,203,142,252,49,195,244,36,252,57,111,196,155,215,82,109,17,97,83,231,108,159,37,189,70,113,37,145,189,167,35,54,6,132,213,235,68,95,222,190,25,66,225,217,170,85,161,173,100,77,214,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1];
+    let public_value = PublicCommitment::abi_decode_packed(pub_value.to_vec()).unwrap();
+
+    println!("{:#?}", public_value)
+}
